@@ -2,6 +2,7 @@ HELP.md
 .agents
 .claude
 /docs
+CLAUDE.md
 
 ### STS ###
 .apt_generated
