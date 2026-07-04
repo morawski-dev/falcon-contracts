@@ -358,26 +358,26 @@ First-ever migration; no existing data. `001-create-users.yaml` creates the `use
 
 #### Automated
 
-- [x] 1.1 Context loads with the migration applied (`./mvnw test -Dtest=FalconApplicationTests`)
-- [x] 1.2 Repository test passes: save, findByEmail, duplicate-email violation
+- [x] 1.1 Context loads with the migration applied (`./mvnw test -Dtest=FalconApplicationTests`) — fee2cd9
+- [x] 1.2 Repository test passes: save, findByEmail, duplicate-email violation — fee2cd9
 
 #### Manual
 
-- [x] 1.3 `users` table exists with expected columns after `spring-boot:run`
+- [x] 1.3 `users` table exists with expected columns after `spring-boot:run` — fee2cd9
 
 ### Phase 2: Security config & isolation primitive
 
 #### Automated
 
-- [ ] 2.1 Full build + suite green (`./mvnw clean package`)
-- [ ] 2.2 Anonymous `GET /api/auth/me` → 401
-- [ ] 2.3 Authenticated `GET /api/auth/me` → 200 with caller id + email
-- [ ] 2.4 `SecurityUtils.currentUserId()` unit test (returns id from a populated context; throws when anonymous)
+- [x] 2.1 Full build + suite green (`./mvnw clean package`)
+- [x] 2.2 Anonymous `GET /api/auth/me` → 401
+- [x] 2.3 Authenticated `GET /api/auth/me` → 200 with caller id + email
+- [x] 2.4 `SecurityUtils.currentUserId()` unit test (returns id from a populated context; throws when anonymous)
 
 #### Manual
 
-- [ ] 2.5 App starts with the explicit chain (no generated default password)
-- [ ] 2.6 CORS preflight from :3000 returns expected headers
+- [x] 2.5 App starts with the explicit chain (no generated default password)
+- [x] 2.6 CORS preflight from :3000 returns expected headers
 
 ### Phase 3: Auth API (register / login / logout)
 
