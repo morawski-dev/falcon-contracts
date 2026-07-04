@@ -1,0 +1,8 @@
+# Keep the build context small: everything the multi-stage build needs is
+# .mvn/, mvnw, pom.xml and src/. Exclude build output and IDE cruft.
+target/
+*.iml
+.idea/
+.vscode/
+HELP.md
+compose.yaml

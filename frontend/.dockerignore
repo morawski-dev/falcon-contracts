@@ -1,0 +1,9 @@
+# The build installs its own deps and produces its own .next output, so never
+# ship the host's copies into the build context.
+node_modules/
+.next/
+.git/
+npm-debug.log*
+.env*.local
+.DS_Store
+README.md
