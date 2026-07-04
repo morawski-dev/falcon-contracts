@@ -1,0 +1,65 @@
+# Full local stack for Falcon: Postgres + Spring Boot backend + Next.js frontend.
+#
+#   docker compose up --build          # build images and start everything
+#   docker compose down                # stop (keeps the postgres volume)
+#   docker compose down -v             # stop and wipe the database volume
+#
+# On localhost:  frontend -> :3000   backend -> :8080   postgres -> :5432
+name: falcon
+
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      # Postgres 18+ stores data in a version subdir under /var/lib/postgresql
+      # and refuses to start if a volume is mounted at the legacy .../data path,
+      # so mount the parent directory here (not .../data).
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      # This container cannot drive a Docker daemon, so turn off
+      # spring-boot-docker-compose (natively it launches backend/compose.yaml
+      # and injects the DB connection) and point Spring at the postgres
+      # service explicitly. These are env vars, so application.properties and
+      # the native `mvnw spring-boot:run` dev flow stay untouched.
+      SPRING_DOCKER_COMPOSE_ENABLED: "false"
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
+      SPRING_DATASOURCE_USERNAME: myuser
+      SPRING_DATASOURCE_PASSWORD: secret
+      # Real key comes from a gitignored .env; the dummy fallback lets the
+      # stack boot before you have one (no LLM call happens at startup).
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-dummy-local-key}
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
