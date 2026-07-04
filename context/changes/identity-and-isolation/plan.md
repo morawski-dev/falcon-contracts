@@ -383,24 +383,24 @@ First-ever migration; no existing data. `001-create-users.yaml` creates the `use
 
 #### Automated
 
-- [x] 3.1 Full flow MockMvc test: register 201 → login 200 → me 200 → logout 204
-- [x] 3.2 Error cases: duplicate email 409, bad credentials 401, invalid payload 400
-- [x] 3.3 Whole suite green (`./mvnw clean package`)
+- [x] 3.1 Full flow MockMvc test: register 201 → login 200 → me 200 → logout 204 — 4c0fd9f
+- [x] 3.2 Error cases: duplicate email 409, bad credentials 401, invalid payload 400 — 4c0fd9f
+- [x] 3.3 Whole suite green (`./mvnw clean package`) — 4c0fd9f
 
 #### Manual
 
-- [x] 3.4 (Optional) curl/REST-client walk of the flow with real session cookie + XSRF header
+- [x] 3.4 (Optional) curl/REST-client walk of the flow with real session cookie + XSRF header — 4c0fd9f
 
 ### Phase 4: Frontend thin auth
 
 #### Automated
 
-- [ ] 4.1 Frontend builds (`pnpm build`)
-- [ ] 4.2 Lint passes (`pnpm lint`)
+- [x] 4.1 Frontend builds (`pnpm build`)
+- [x] 4.2 Lint passes (`pnpm lint`)
 
 #### Manual
 
-- [ ] 4.3 Register → ends up logged in on `/dashboard`
-- [ ] 4.4 Log out / log back in → `/dashboard` shows correct email
-- [ ] 4.5 Direct-navigate to `/dashboard` while logged out → redirected to `/login`
-- [ ] 4.6 Full cross-origin session + XSRF loop works with no CORS/CSRF console errors
+- [x] 4.3 Register → ends up logged in on `/dashboard`
+- [x] 4.4 Log out / log back in → `/dashboard` shows correct email
+- [x] 4.5 Direct-navigate to `/dashboard` while logged out → redirected to `/login`
+- [x] 4.6 Full cross-origin session + XSRF loop works with no CORS/CSRF console errors
