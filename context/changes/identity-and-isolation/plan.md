@@ -369,27 +369,27 @@ First-ever migration; no existing data. `001-create-users.yaml` creates the `use
 
 #### Automated
 
-- [x] 2.1 Full build + suite green (`./mvnw clean package`)
-- [x] 2.2 Anonymous `GET /api/auth/me` → 401
-- [x] 2.3 Authenticated `GET /api/auth/me` → 200 with caller id + email
-- [x] 2.4 `SecurityUtils.currentUserId()` unit test (returns id from a populated context; throws when anonymous)
+- [x] 2.1 Full build + suite green (`./mvnw clean package`) — 713c794
+- [x] 2.2 Anonymous `GET /api/auth/me` → 401 — 713c794
+- [x] 2.3 Authenticated `GET /api/auth/me` → 200 with caller id + email — 713c794
+- [x] 2.4 `SecurityUtils.currentUserId()` unit test (returns id from a populated context; throws when anonymous) — 713c794
 
 #### Manual
 
-- [x] 2.5 App starts with the explicit chain (no generated default password)
-- [x] 2.6 CORS preflight from :3000 returns expected headers
+- [x] 2.5 App starts with the explicit chain (no generated default password) — 713c794
+- [x] 2.6 CORS preflight from :3000 returns expected headers — 713c794
 
 ### Phase 3: Auth API (register / login / logout)
 
 #### Automated
 
-- [ ] 3.1 Full flow MockMvc test: register 201 → login 200 → me 200 → logout 204
-- [ ] 3.2 Error cases: duplicate email 409, bad credentials 401, invalid payload 400
-- [ ] 3.3 Whole suite green (`./mvnw clean package`)
+- [x] 3.1 Full flow MockMvc test: register 201 → login 200 → me 200 → logout 204
+- [x] 3.2 Error cases: duplicate email 409, bad credentials 401, invalid payload 400
+- [x] 3.3 Whole suite green (`./mvnw clean package`)
 
 #### Manual
 
-- [ ] 3.4 (Optional) curl/REST-client walk of the flow with real session cookie + XSRF header
+- [x] 3.4 (Optional) curl/REST-client walk of the flow with real session cookie + XSRF header
 
 ### Phase 4: Frontend thin auth
 
