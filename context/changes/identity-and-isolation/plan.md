@@ -395,12 +395,12 @@ First-ever migration; no existing data. `001-create-users.yaml` creates the `use
 
 #### Automated
 
-- [x] 4.1 Frontend builds (`pnpm build`)
-- [x] 4.2 Lint passes (`pnpm lint`)
+- [x] 4.1 Frontend builds (`pnpm build`) — a7ed848
+- [x] 4.2 Lint passes (`pnpm lint`) — a7ed848
 
 #### Manual
 
-- [x] 4.3 Register → ends up logged in on `/dashboard`
-- [x] 4.4 Log out / log back in → `/dashboard` shows correct email
-- [x] 4.5 Direct-navigate to `/dashboard` while logged out → redirected to `/login`
-- [x] 4.6 Full cross-origin session + XSRF loop works with no CORS/CSRF console errors
+- [x] 4.3 Register → ends up logged in on `/dashboard` — a7ed848
+- [x] 4.4 Log out / log back in → `/dashboard` shows correct email — a7ed848
+- [x] 4.5 Direct-navigate to `/dashboard` while logged out → redirected to `/login` — a7ed848
+- [x] 4.6 Full cross-origin session + XSRF loop works with no CORS/CSRF console errors — a7ed848
