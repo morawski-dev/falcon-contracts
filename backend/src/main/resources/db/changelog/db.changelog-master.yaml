@@ -3,7 +3,7 @@
 #
 # Add each subsequent migration as a separate file and wire it in via `include`,
 # as the domain entities take shape (User, Analysis, Clause, NegotiationPoint).
-# Example:
-#   - include:
-#       file: db/changelog/changes/001-create-users.yaml
-databaseChangeLog: []
+databaseChangeLog:
+  - include:
+      file: db/changelog/changes/001-create-users.yaml
+
