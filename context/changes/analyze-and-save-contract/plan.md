@@ -399,12 +399,12 @@ The single ~15s p95 cost is the synchronous LLM call (`POST /api/analyses`); the
 
 #### Automated
 
-- [x] 4.1 Frontend builds (`pnpm build`)
-- [x] 4.2 Lint passes (`pnpm lint`)
+- [x] 4.1 Frontend builds (`pnpm build`) — 3eaa0f2
+- [x] 4.2 Lint passes (`pnpm lint`) — 3eaa0f2
 
 #### Manual
 
-- [x] 4.3 Paste auto-renewal contract + title → progress feedback → result with HIGH badge + linked point + disclaimer
-- [x] 4.4 Empty submit → inline error; >20k paste → "too long"; induced failure → "could not analyze"
-- [x] 4.5 Direct-navigate to `/analyses/new` or `/analyses/{id}` while logged out → redirected to `/login`
-- [x] 4.6 Risk badges are color-coded (red/amber/green); risk types show Polish labels
+- [x] 4.3 Paste auto-renewal contract + title → progress feedback → result with HIGH badge + linked point + disclaimer — 3eaa0f2
+- [x] 4.4 Empty submit → inline error; >20k paste → "too long"; induced failure → "could not analyze" — 3eaa0f2
+- [x] 4.5 Direct-navigate to `/analyses/new` or `/analyses/{id}` while logged out → redirected to `/login` — 3eaa0f2
+- [x] 4.6 Risk badges are color-coded (red/amber/green); risk types show Polish labels — 3eaa0f2

@@ -1,7 +1,7 @@
 ---
 change_id: analyze-and-save-contract
 title: Analyze and save contract
-status: implementing
+status: implemented
 created: 2026-07-06
 updated: 2026-07-06
 archived_at: null
