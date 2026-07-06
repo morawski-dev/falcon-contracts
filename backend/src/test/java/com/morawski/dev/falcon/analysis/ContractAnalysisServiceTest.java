@@ -92,4 +92,31 @@ class ContractAnalysisServiceTest {
 				.isInstanceOf(AnalysisFailedException.class);
 	}
 
+	@Test
+	void oversizedClauseTextRaisesAnalysisFailedException() {
+		String tooLongText = "a".repeat(10001);
+		ContractAnalysisService service = serviceReturning("""
+				{
+				  "clauses": [
+				    { "text": "%s", "riskLevel": "HIGH", "riskType": "AUTO_RENEWAL", "rationale": "uzasadnienie" }
+				  ],
+				  "negotiationPoints": []
+				}
+				""".formatted(tooLongText));
+
+		assertThatThrownBy(() -> service.analyze("umowa..."))
+				.isInstanceOf(AnalysisFailedException.class);
+	}
+
+	@Test
+	void transportFailureRaisesAnalysisFailedException() {
+		ChatClient.Builder builder = ChatClient.builder(prompt -> {
+			throw new RuntimeException("simulated network failure");
+		});
+		ContractAnalysisService service = new ContractAnalysisService(builder);
+
+		assertThatThrownBy(() -> service.analyze("umowa..."))
+				.isInstanceOf(AnalysisFailedException.class);
+	}
+
 }

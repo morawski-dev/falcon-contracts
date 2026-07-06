@@ -7,7 +7,9 @@ import com.morawski.dev.falcon.analysis.llm.AnalyzedClause;
 import com.morawski.dev.falcon.analysis.llm.ClauseAnalysisResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
@@ -18,18 +20,27 @@ public class AnalysisService {
 
 	private final ContractAnalysisService contractAnalysisService;
 	private final AnalysisRepository analysisRepository;
+	private final TransactionTemplate transactionTemplate;
 
-	public AnalysisService(ContractAnalysisService contractAnalysisService, AnalysisRepository analysisRepository) {
+	public AnalysisService(ContractAnalysisService contractAnalysisService, AnalysisRepository analysisRepository,
+			PlatformTransactionManager transactionManager) {
 		this.contractAnalysisService = contractAnalysisService;
 		this.analysisRepository = analysisRepository;
+		// A plain @Transactional on a private/self-invoked method wouldn't apply (Spring's
+		// proxy-based AOP doesn't intercept calls made via `this`), so the persist+map step
+		// below uses TransactionTemplate to get a real transaction boundary without a second bean.
+		this.transactionTemplate = new TransactionTemplate(transactionManager);
 	}
 
 	public AnalysisResponse createAnalysis(String title, String rawText, Long ownerId) {
-		// The ~15s LLM call runs before any repository call — no DB transaction/connection is
-		// held across it. Each repository call below opens its own short transaction (Spring
-		// Data JPA's default), so persistence stays atomic without spanning the LLM wait.
+		// The ~15s LLM call runs before any transaction — no DB connection is held across it.
 		ClauseAnalysisResult result = contractAnalysisService.analyze(rawText);
+		// Persistence + the lazy-collection response mapping run inside one explicit transaction,
+		// so toResponse() never maps a detached entity (the bug getAnalysis() was fixed for).
+		return transactionTemplate.execute(status -> persistAndRespond(title, rawText, ownerId, result));
+	}
 
+	private AnalysisResponse persistAndRespond(String title, String rawText, Long ownerId, ClauseAnalysisResult result) {
 		Analysis analysis = new Analysis(ownerId, title, rawText, AnalysisStatus.ANALYZED, Instant.now());
 		for (AnalyzedClause analyzedClause : result.clauses()) {
 			new Clause(analysis, analyzedClause.text(), analyzedClause.riskLevel(), analyzedClause.riskType(),
