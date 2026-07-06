@@ -362,7 +362,7 @@ of `origin/main`, and observing runs is done via the web UI (`gh` is not install
 
 #### Manual
 
-- [ ] 2.3 Both `backend` and `frontend` jobs pass green in the Actions tab
-- [ ] 2.4 A frontend-only commit skips the backend job (and mirror for backend-only)
-- [ ] 2.5 A direct push to `main` triggers the workflow
-- [ ] 2.6 The backend job completes with no secret configured
+- [x] 2.3 Both `backend` and `frontend` jobs pass green in the Actions tab
+- [x] 2.4 A frontend-only commit skips the backend job (and mirror for backend-only)
+- [x] 2.5 A direct push to `main` triggers the workflow
+- [x] 2.6 The backend job completes with no secret configured
