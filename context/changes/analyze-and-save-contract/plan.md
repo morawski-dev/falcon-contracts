@@ -374,26 +374,26 @@ The single ~15s p95 cost is the synchronous LLM call (`POST /api/analyses`); the
 
 #### Automated
 
-- [x] 2.1 Full build + suite green (`./mvnw clean package`)
-- [x] 2.2 `ContractAnalysisServiceTest` mapping: mocked fixed JSON → `ClauseAnalysisResult` with a HIGH/AUTO_RENEWAL clause + linked point
-- [x] 2.3 Failure cases: malformed JSON, empty clauses, and null/blank required field → `AnalysisFailedException`
+- [x] 2.1 Full build + suite green (`./mvnw clean package`) — 7599aa1
+- [x] 2.2 `ContractAnalysisServiceTest` mapping: mocked fixed JSON → `ClauseAnalysisResult` with a HIGH/AUTO_RENEWAL clause + linked point — 7599aa1
+- [x] 2.3 Failure cases: malformed JSON, empty clauses, and null/blank required field → `AnalysisFailedException` — 7599aa1
 
 #### Manual
 
-- [ ] 2.4 (Optional) Live `analyze()` with a real `OPENROUTER_API_KEY` returns a well-formed result
+- [ ] 2.4 (Optional) Live `analyze()` with a real `OPENROUTER_API_KEY` returns a well-formed result — skipped by user decision, no `OPENROUTER_API_KEY` available
 
 ### Phase 3: Analyze-and-save API
 
 #### Automated
 
-- [ ] 3.1 Load-bearing e2e: `POST` risky contract → 201 saved; response + `GET` show a HIGH/MEDIUM clause with a linked negotiation point
-- [ ] 3.2 Cross-user isolation: user B `GET` user A's analysis → 404
-- [ ] 3.3 Error/validation: LLM failure → 502; blank title / >20k rawText → 400; unknown id → 404
-- [ ] 3.4 Whole suite green (`./mvnw clean package`)
+- [x] 3.1 Load-bearing e2e: `POST` risky contract → 201 saved; response + `GET` show a HIGH/MEDIUM clause with a linked negotiation point
+- [x] 3.2 Cross-user isolation: user B `GET` user A's analysis → 404
+- [x] 3.3 Error/validation: LLM failure → 502; blank title / >20k rawText → 400; unknown id → 404
+- [x] 3.4 Whole suite green (`./mvnw clean package`)
 
 #### Manual
 
-- [ ] 3.5 (Optional) curl/REST-client POST→GET walk with a real session cookie + XSRF header
+- [ ] 3.5 (Optional) curl/REST-client POST→GET walk with a real session cookie + XSRF header — skipped by user decision; automated e2e already proves the endpoint contract
 
 ### Phase 4: Frontend analyze flow
 
