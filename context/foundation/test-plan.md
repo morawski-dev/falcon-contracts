@@ -92,7 +92,7 @@ orchestrator updates Status as artifacts appear on disk.
 
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|---------------|------------|--------|---------------|
-| 1 | Auth boundary regression | Lock default-deny and the permit-list contract every new endpoint inherits (buildable now against F-01). | #5 | security-slice integration | change opened | context/changes/testing-auth-boundary-regression/ |
+| 1 | Auth boundary regression | Lock default-deny and the permit-list contract every new endpoint inherits (buildable now against F-01). | #5 | security-slice integration | planned | context/changes/testing-auth-boundary-regression/ |
 | 2 | Classification pipeline + isolation | The load-bearing mocked-LLM e2e, converter robustness, and the first cross-user isolation test on `Analysis` (waits for S-01). | #1, #2, #3 | integration + e2e | not started | — |
 | 3 | Frontend / browser E2E | Paste→result flow, the "not legal advice" disclaimer guardrail, empty-input state, and the auth redirect (waits for the S-01 UI). | #4 | e2e (browser) | not started | — |
 | 4 | Quality-gate wiring | Lock the floor: per-edit hooks + pre-commit + CI (F-02) running the deterministic e2e (after the suites exist). | cross-cutting | gates | not started | — |
