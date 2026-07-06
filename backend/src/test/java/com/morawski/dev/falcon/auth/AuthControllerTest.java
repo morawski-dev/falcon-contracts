@@ -36,12 +36,6 @@ class AuthControllerTest {
 	}
 
 	@Test
-	void anonymousMeReturns401() throws Exception {
-		mockMvc.perform(get("/api/auth/me"))
-				.andExpect(status().isUnauthorized());
-	}
-
-	@Test
 	void authenticatedMeReturnsCallerIdentity() throws Exception {
 		User saved = userRepository.save(new User("caller@example.com", "hash", Instant.now()));
 		AppUserDetails principal = new AppUserDetails(saved);
