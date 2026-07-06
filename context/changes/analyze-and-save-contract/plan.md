@@ -362,12 +362,12 @@ The single ~15s p95 cost is the synchronous LLM call (`POST /api/analyses`); the
 
 #### Automated
 
-- [ ] 1.1 Context loads with 002 applied + entities validate (`./mvnw test -Dtest=FalconApplicationTests`)
-- [ ] 1.2 `AnalysisRepositoryTest`: cascade save + `findByIdAndOwnerId` owner-scoping (owner vs non-owner)
+- [x] 1.1 Context loads with 002 applied + entities validate (`./mvnw test -Dtest=FalconApplicationTests`)
+- [x] 1.2 `AnalysisRepositoryTest`: cascade save + `findByIdAndOwnerId` owner-scoping (owner vs non-owner)
 
 #### Manual
 
-- [ ] 1.3 `analyses`/`clauses`/`negotiation_points` tables + FKs exist after `spring-boot:run`
+- [x] 1.3 `analyses`/`clauses`/`negotiation_points` tables + FKs exist after `spring-boot:run`
 
 ### Phase 2: LLM analysis service
 
