@@ -420,12 +420,12 @@ None — no schema or production-code changes. Test code plus one documentation 
 
 #### Automated
 
-- [x] 3.1 Repo isolation test passes: `./mvnw test -Dtest=AnalysisRepositoryTest`
-- [x] 3.2 E2e no-leak test passes: `./mvnw test -Dtest=AnalysisIsolationTest`
-- [x] 3.3 Full backend suite green: `./mvnw test`
+- [x] 3.1 Repo isolation test passes: `./mvnw test -Dtest=AnalysisRepositoryTest` — 563967e
+- [x] 3.2 E2e no-leak test passes: `./mvnw test -Dtest=AnalysisIsolationTest` — 563967e
+- [x] 3.3 Full backend suite green: `./mvnw test` — 563967e
 
 #### Manual
 
-- [x] 3.4 findByIdAndOwnerId exercised against real Postgres; wrong-owner empty, right-owner present
-- [x] 3.5 Cross-user GET and missing-id GET are indistinguishable 404s
-- [x] 3.6 test-plan.md §6.4/§6.5 filled, §7 zero-clause note added, §3 Phase-2 status advanced, per-phase note appended
+- [x] 3.4 findByIdAndOwnerId exercised against real Postgres; wrong-owner empty, right-owner present — 563967e
+- [x] 3.5 Cross-user GET and missing-id GET are indistinguishable 404s — 563967e
+- [x] 3.6 test-plan.md §6.4/§6.5 filled, §7 zero-clause note added, §3 Phase-2 status advanced, per-phase note appended — 563967e
