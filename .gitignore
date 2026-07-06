@@ -3,6 +3,7 @@ HELP.md
 .claude
 /docs
 CLAUDE.md
+.playwright-cli
 
 ### STS ###
 .apt_generated
