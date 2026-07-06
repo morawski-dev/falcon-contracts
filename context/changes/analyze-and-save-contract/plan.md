@@ -380,16 +380,16 @@ The single ~15s p95 cost is the synchronous LLM call (`POST /api/analyses`); the
 
 #### Manual
 
-- [ ] 2.4 (Optional) Live `analyze()` with a real `OPENROUTER_API_KEY` returns a well-formed result — skipped by user decision, no `OPENROUTER_API_KEY` available
+- [ ] 2.4 (Optional) Live `analyze()` with a real `OPENROUTER_API_KEY` returns a well-formed result — skipped by user decision (a real key exists in `.env`; not used for this optional check)
 
 ### Phase 3: Analyze-and-save API
 
 #### Automated
 
-- [x] 3.1 Load-bearing e2e: `POST` risky contract → 201 saved; response + `GET` show a HIGH/MEDIUM clause with a linked negotiation point
-- [x] 3.2 Cross-user isolation: user B `GET` user A's analysis → 404
-- [x] 3.3 Error/validation: LLM failure → 502; blank title / >20k rawText → 400; unknown id → 404
-- [x] 3.4 Whole suite green (`./mvnw clean package`)
+- [x] 3.1 Load-bearing e2e: `POST` risky contract → 201 saved; response + `GET` show a HIGH/MEDIUM clause with a linked negotiation point — fd542e3
+- [x] 3.2 Cross-user isolation: user B `GET` user A's analysis → 404 — fd542e3
+- [x] 3.3 Error/validation: LLM failure → 502; blank title / >20k rawText → 400; unknown id → 404 — fd542e3
+- [x] 3.4 Whole suite green (`./mvnw clean package`) — fd542e3
 
 #### Manual
 
@@ -399,12 +399,12 @@ The single ~15s p95 cost is the synchronous LLM call (`POST /api/analyses`); the
 
 #### Automated
 
-- [ ] 4.1 Frontend builds (`pnpm build`)
-- [ ] 4.2 Lint passes (`pnpm lint`)
+- [x] 4.1 Frontend builds (`pnpm build`)
+- [x] 4.2 Lint passes (`pnpm lint`)
 
 #### Manual
 
-- [ ] 4.3 Paste auto-renewal contract + title → progress feedback → result with HIGH badge + linked point + disclaimer
-- [ ] 4.4 Empty submit → inline error; >20k paste → "too long"; induced failure → "could not analyze"
-- [ ] 4.5 Direct-navigate to `/analyses/new` or `/analyses/{id}` while logged out → redirected to `/login`
-- [ ] 4.6 Risk badges are color-coded (red/amber/green); risk types show Polish labels
+- [x] 4.3 Paste auto-renewal contract + title → progress feedback → result with HIGH badge + linked point + disclaimer
+- [x] 4.4 Empty submit → inline error; >20k paste → "too long"; induced failure → "could not analyze"
+- [x] 4.5 Direct-navigate to `/analyses/new` or `/analyses/{id}` while logged out → redirected to `/login`
+- [x] 4.6 Risk badges are color-coded (red/amber/green); risk types show Polish labels

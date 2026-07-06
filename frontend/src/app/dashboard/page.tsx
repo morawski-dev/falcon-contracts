@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { me, logout, type CurrentUser } from "@/lib/auth";
@@ -35,6 +36,9 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <p className="text-sm text-foreground">Zalogowano jako {user?.email}</p>
+          <Button asChild>
+            <Link href="/analyses/new">Nowa analiza</Link>
+          </Button>
           <Button variant="outline" onClick={handleLogout}>
             Wyloguj
           </Button>

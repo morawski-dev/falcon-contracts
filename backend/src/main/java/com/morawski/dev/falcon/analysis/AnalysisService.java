@@ -7,6 +7,7 @@ import com.morawski.dev.falcon.analysis.llm.AnalyzedClause;
 import com.morawski.dev.falcon.analysis.llm.ClauseAnalysisResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
@@ -49,7 +50,11 @@ public class AnalysisService {
 		return toResponse(saved);
 	}
 
+	@Transactional(readOnly = true)
 	public AnalysisResponse getAnalysis(Long id, Long ownerId) {
+		// Without an open transaction spanning both the fetch and toResponse()'s mapping, the
+		// Analysis returned by findByIdAndOwnerId is detached by the time its lazy @OneToMany
+		// collections (clauses, negotiationPoints) are accessed, throwing LazyInitializationException.
 		Analysis analysis = analysisRepository.findByIdAndOwnerId(id, ownerId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		return toResponse(analysis);
