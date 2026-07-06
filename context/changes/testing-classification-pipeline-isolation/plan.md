@@ -396,25 +396,25 @@ None — no schema or production-code changes. Test code plus one documentation 
 
 #### Automated
 
-- [x] 1.1 New test passes: `./mvnw test -Dtest=ClassificationContractTest`
-- [x] 1.2 Full backend suite still green: `./mvnw test`
+- [x] 1.1 New test passes: `./mvnw test -Dtest=ClassificationContractTest` — b855927
+- [x] 1.2 Full backend suite still green: `./mvnw test` — b855927
 
 #### Manual
 
-- [ ] 1.3 Test asserts no-drop, never-downgrade, risky-only linkage by clauseId, rationale hasText — no prose assertion
-- [ ] 1.4 Mock is the ChatModel lambda (real converter in path), not a Mockito ChatClient
+- [x] 1.3 Test asserts no-drop, never-downgrade, risky-only linkage by clauseId, rationale hasText — no prose assertion — b855927
+- [x] 1.4 Mock is the ChatModel lambda (real converter in path), not a Mockito ChatClient — b855927
 
 ### Phase 2: Risk #3 — Converter-Robustness Matrix
 
 #### Automated
 
-- [ ] 2.1 New matrix passes: `./mvnw test -Dtest=ConverterRobustnessTest`
-- [ ] 2.2 Full backend suite still green: `./mvnw test`
+- [x] 2.1 New matrix passes: `./mvnw test -Dtest=ConverterRobustnessTest`
+- [x] 2.2 Full backend suite still green: `./mvnw test`
 
 #### Manual
 
-- [ ] 2.3 Every case asserts the user-visible HTTP outcome, real converter in path (converter never mocked)
-- [ ] 2.4 Fenced-JSON case pins the observed controlled outcome; zero-clause case pins 502 with the §7 cross-reference comment
+- [x] 2.3 Every case asserts the user-visible HTTP outcome, real converter in path (converter never mocked)
+- [x] 2.4 Fenced-JSON case pins the observed controlled outcome; zero-clause case pins 502 with the §7 cross-reference comment
 
 ### Phase 3: Risk #1 — Isolation Completeness + Test-Plan Sync
 
