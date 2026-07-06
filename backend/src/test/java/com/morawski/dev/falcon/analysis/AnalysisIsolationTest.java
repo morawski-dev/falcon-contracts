@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -42,6 +43,9 @@ class AnalysisIsolationTest {
 	@Autowired
 	private AnalysisRepository analysisRepository;
 
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 	@AfterEach
 	void cleanUp() {
 		analysisRepository.deleteAll();
@@ -49,7 +53,7 @@ class AnalysisIsolationTest {
 	}
 
 	private User persistUser(String email) {
-		return userRepository.save(new User(email, "hashed-password", Instant.now()));
+		return userRepository.save(new User(email, passwordEncoder.encode("password"), Instant.now()));
 	}
 
 	@Test
@@ -71,6 +75,9 @@ class AnalysisIsolationTest {
 				.as("wrong-owner id must be indistinguishable from a missing id")
 				.isEqualTo(404)
 				.isEqualTo(missingIdResult.getResponse().getStatus());
+		// Both bodies are empty today (ResponseStatusException never reaches BasicErrorController
+		// under MockMvc) — this assertion is defense-in-depth against a future error body that
+		// might otherwise distinguish "exists but not yours" from "doesn't exist".
 		assertThat(crossUserResult.getResponse().getContentAsString())
 				.as("no distinguishing signal in the response body either")
 				.isEqualTo(missingIdResult.getResponse().getContentAsString());

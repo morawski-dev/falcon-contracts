@@ -156,22 +156,22 @@ class ClassificationContractTest {
 		// No clause dropped: the model returned 3, all 3 must be persisted and returned.
 		assertThat(clauses).hasSize(3);
 
-		// Never silently downgraded — assert the negative, not just the positive.
-		assertThat(clauses.get(0).get("riskLevel").asText()).isEqualTo("HIGH").isNotEqualTo("LOW");
-		assertThat(clauses.get(0).get("riskType").asText()).isEqualTo("AUTO_RENEWAL");
-		assertThat(clauses.get(1).get("riskLevel").asText()).isEqualTo("MEDIUM").isNotEqualTo("LOW");
-		assertThat(clauses.get(1).get("riskType").asText()).isEqualTo("PENALTY");
-		assertThat(clauses.get(2).get("riskLevel").asText()).isEqualTo("LOW");
-		assertThat(clauses.get(2).get("riskType").asText()).isEqualTo("PAYMENT");
+		// Never silently downgraded — assert the negative, not just the positive. Looked up by
+		// riskType rather than array index: Analysis.clauses carries no @OrderBy, so the
+		// persisted/returned order is not a guaranteed contract.
+		JsonNode autoRenewalClause = findClauseByRiskType(clauses, "AUTO_RENEWAL");
+		assertThat(autoRenewalClause.get("riskLevel").asText()).isEqualTo("HIGH").isNotEqualTo("LOW");
+		JsonNode penaltyClause = findClauseByRiskType(clauses, "PENALTY");
+		assertThat(penaltyClause.get("riskLevel").asText()).isEqualTo("MEDIUM").isNotEqualTo("LOW");
+		JsonNode paymentClause = findClauseByRiskType(clauses, "PAYMENT");
+		assertThat(paymentClause.get("riskLevel").asText()).isEqualTo("LOW");
 
 		// Rationale is readable (non-blank) — never assert its prose (oracle-problem guard).
 		for (JsonNode clause : clauses) {
 			assertThat(clause.get("rationale").asText()).isNotBlank();
 		}
 
-		long highClauseId = clauses.get(0).get("id").asLong();
-		long mediumClauseId = clauses.get(1).get("id").asLong();
-		Set<Long> riskyClauseIds = Set.of(highClauseId, mediumClauseId);
+		Set<Long> riskyClauseIds = Set.of(autoRenewalClause.get("id").asLong(), penaltyClause.get("id").asLong());
 
 		// Linkage: exactly the two risky clauses get a negotiation point; the LOW clause gets none.
 		assertThat(points).hasSize(2);
@@ -181,6 +181,15 @@ class ClassificationContractTest {
 					.isTrue();
 			assertThat(riskyClauseIds).contains(point.get("clauseId").asLong());
 		}
+	}
+
+	private JsonNode findClauseByRiskType(JsonNode clauses, String riskType) {
+		for (JsonNode clause : clauses) {
+			if (clause.get("riskType").asText().equals(riskType)) {
+				return clause;
+			}
+		}
+		throw new AssertionError("No clause found with riskType " + riskType);
 	}
 
 	@TestConfiguration(proxyBeanMethods = false)
