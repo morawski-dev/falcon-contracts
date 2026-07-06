@@ -3,7 +3,7 @@ project: Falcon
 version: 1
 status: draft
 created: 2026-07-04
-updated: 2026-07-04
+updated: 2026-07-06
 prd_version: 1
 main_goal: market-feedback
 top_blocker: capacity
@@ -29,7 +29,7 @@ Falcon turns a pasted contract into a per-clause risk breakdown: an LLM splits t
 
 | ID    | Change ID                | Outcome (user can …)                                            | Prerequisites | PRD refs                                        | Status   |
 | ----- | ------------------------ | --------------------------------------------------------------- | ------------- | ----------------------------------------------- | -------- |
-| F-01  | identity-and-isolation   | (foundation) register, log in; every analysis is owner-scoped   | —             | FR-001, Access Control                          | ready    |
+| F-01  | identity-and-isolation   | (foundation) register, log in; every analysis is owner-scoped   | —             | FR-001, Access Control                          | done     |
 | S-01  | analyze-and-save-contract | paste a contract → saved, classified breakdown + negotiation points | F-01      | US-01, FR-002, FR-003, FR-004, FR-005, FR-006, FR-008 | proposed |
 | S-02  | clause-decision-status   | mark each clause accepted / to-negotiate / rejected             | S-01          | FR-007                                          | proposed |
 | S-03  | analysis-history         | see and reopen their past analyses                              | S-01          | FR-009                                          | proposed |
@@ -72,7 +72,7 @@ Foundations below assume these are present and do NOT re-scaffold them. The them
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Sequenced first because the PRD makes "logged-in user" a hard precondition and per-user isolation a domain invariant. Keep it minimal — form/session login + owner-scoping + the `User` entity's first migration — and resist roles/admin (explicit non-goals). Under-building leaves data cross-visible (a guardrail regression); over-building burns the solo capacity budget.
-- **Status:** ready
+- **Status:** done
 
 ### F-02: CI — build & test on every push
 
@@ -175,4 +175,4 @@ None. The PRD closed with zero open questions and a clean shape cross-check, and
 
 ## Done
 
-(Empty on first generation. `/10x-archive` appends an entry here — and flips that item's `Status` to `done` — when a change whose `Change ID` matches an item is archived. Do NOT pre-populate.)
+- **F-01: (foundation) users can register, log in, and hold a session; every `Analysis` (and its clauses and negotiation points) is scoped to its owner and unreachable by any other authenticated user — isolation enforced at the query/security layer, not just the UI.** — Archived 2026-07-06 → `context/archive/2026-07-04-identity-and-isolation/`. Lesson: —.
