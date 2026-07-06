@@ -223,11 +223,11 @@ Not applicable — no schema or data changes; test-only phase.
 
 #### Automated
 
-- [x] 1.1 New test class passes: `./mvnw test -Dtest=AuthBoundaryMatrixTest`
-- [x] 1.2 `AuthControllerTest` still passes with reduced scope
-- [x] 1.3 Full backend suite passes with no regressions
+- [x] 1.1 New test class passes: `./mvnw test -Dtest=AuthBoundaryMatrixTest` — 50a5d83
+- [x] 1.2 `AuthControllerTest` still passes with reduced scope — 50a5d83
+- [x] 1.3 Full backend suite passes with no regressions — 50a5d83
 
 #### Manual
 
-- [x] 1.4 Grep confirms nothing else referenced the removed `anonymousMeReturns401` method
-- [x] 1.5 "Test the test" — a deliberately broken permit-list/default-deny config makes the suite fail, then revert
+- [x] 1.4 Grep confirms nothing else referenced the removed `anonymousMeReturns401` method — 50a5d83
+- [x] 1.5 "Test the test" — a deliberately broken permit-list/default-deny config makes the suite fail, then revert — 50a5d83
