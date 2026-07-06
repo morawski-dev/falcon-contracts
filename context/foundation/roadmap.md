@@ -30,7 +30,7 @@ Falcon turns a pasted contract into a per-clause risk breakdown: an LLM splits t
 | ID    | Change ID                | Outcome (user can …)                                            | Prerequisites | PRD refs                                        | Status   |
 | ----- | ------------------------ | --------------------------------------------------------------- | ------------- | ----------------------------------------------- | -------- |
 | F-01  | identity-and-isolation   | (foundation) register, log in; every analysis is owner-scoped   | —             | FR-001, Access Control                          | done     |
-| S-01  | analyze-and-save-contract | paste a contract → saved, classified breakdown + negotiation points | F-01      | US-01, FR-002, FR-003, FR-004, FR-005, FR-006, FR-008 | proposed |
+| S-01  | analyze-and-save-contract | paste a contract → saved, classified breakdown + negotiation points | F-01      | US-01, FR-002, FR-003, FR-004, FR-005, FR-006, FR-008 | done |
 | S-02  | clause-decision-status   | mark each clause accepted / to-negotiate / rejected             | S-01          | FR-007                                          | proposed |
 | S-03  | analysis-history         | see and reopen their past analyses                              | S-01          | FR-009                                          | proposed |
 | S-04  | delete-analysis          | delete one of their saved analyses                              | S-01          | FR-010                                          | proposed |
@@ -100,7 +100,7 @@ Foundations below assume these are present and do NOT re-scaffold them. The them
 - **Unknowns:**
   - Does Spring AI 2.0's structured-output path (`.entity()` / `BeanOutputConverter`) reliably map the model's JSON into the `ClauseAnalysisResult` records against OpenRouter / `openai/gpt-4o`? — Owner: user. Block: no (a spike inside the slice; `docs/clause-classification.md` carries a reference implementation, and a manual JSON-mapping fallback exists if the converter misbehaves).
 - **Risk:** This is the irreducible core and the whole product's value — it cannot be split further without either breaking the Primary Success Criterion (which requires the result be *saved*) or slicing by technical layer (forbidden). It carries the load-bearing mocked-LLM e2e test and the riskiest tech (brand-new Spring AI 2.0 GA). Sequenced immediately after the auth gate so the riskiest assumption is exercised first (market-feedback bias).
-- **Status:** proposed
+- **Status:** done
 
 ### S-02: Work the negotiation checklist (per-clause status)
 
@@ -176,3 +176,4 @@ None. The PRD closed with zero open questions and a clean shape cross-check, and
 ## Done
 
 - **F-01: (foundation) users can register, log in, and hold a session; every `Analysis` (and its clauses and negotiation points) is scoped to its owner and unreachable by any other authenticated user — isolation enforced at the query/security layer, not just the UI.** — Archived 2026-07-06 → `context/archive/2026-07-04-identity-and-isolation/`. Lesson: —.
+- **S-01: a logged-in user can paste contract text, give it a title, and submit it; Falcon splits it into clauses, classifies each (risk level low/medium/high, risk type, plain-language rationale), generates at least one negotiation point for the risky clause(s), and saves the owner-scoped result — shown with a visible "supporting analysis, not legal advice" disclaimer and continuous progress feedback during the wait. Empty or unparseable input shows an explanatory state, not a silent empty result.** — Archived 2026-07-06 → `context/archive/2026-07-06-analyze-and-save-contract/`. Lesson: —.

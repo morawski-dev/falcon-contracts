@@ -1,10 +1,10 @@
 ---
 change_id: analyze-and-save-contract
 title: Analyze and save contract
-status: impl_reviewed
+status: archived
 created: 2026-07-06
 updated: 2026-07-06
-archived_at: null
+archived_at: 2026-07-06T14:30:12Z
 ---
 
 ## Notes
