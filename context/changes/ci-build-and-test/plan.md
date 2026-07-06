@@ -340,25 +340,25 @@ of `origin/main`, and observing runs is done via the web UI (`gh` is not install
 
 #### Automated
 
-- [x] 1.1 `packageManager` + `engines.node` present in `frontend/package.json`
-- [x] 1.2 `.nvmrc` exists and reads `24`
-- [x] 1.3 `backend/mvnw` index mode is `100755`
-- [x] 1.4 Frontend installs clean under pnpm 11 (`corepack enable && pnpm install --frozen-lockfile`)
-- [x] 1.5 Frontend lint passes (`pnpm lint`)
-- [x] 1.6 Frontend build passes (`pnpm build`)
-- [x] 1.7 Backend suite passes locally (`./mvnw -B -ntp clean package`)
+- [x] 1.1 `packageManager` + `engines.node` present in `frontend/package.json` — b0e9471
+- [x] 1.2 `.nvmrc` exists and reads `24` — b0e9471
+- [x] 1.3 `backend/mvnw` index mode is `100755` — b0e9471
+- [x] 1.4 Frontend installs clean under pnpm 11 (`corepack enable && pnpm install --frozen-lockfile`) — b0e9471
+- [x] 1.5 Frontend lint passes (`pnpm lint`) — b0e9471
+- [x] 1.6 Frontend build passes (`pnpm build`) — b0e9471
+- [x] 1.7 Backend suite passes locally (`./mvnw -B -ntp clean package`) — b0e9471
 
 #### Manual
 
-- [x] 1.8 Reconciled Docker image builds on Node 24 / pnpm 11 (`docker build ./frontend`)
-- [x] 1.9 `pnpm lint` output clean of new version-bump warnings
+- [x] 1.8 Reconciled Docker image builds on Node 24 / pnpm 11 (`docker build ./frontend`) — b0e9471
+- [x] 1.9 `pnpm lint` output clean of new version-bump warnings — b0e9471
 
 ### Phase 2: CI Workflow
 
 #### Automated
 
-- [ ] 2.1 `.github/workflows/ci.yml` exists
-- [ ] 2.2 Workflow is valid (`actionlint`, or YAML parse fallback)
+- [x] 2.1 `.github/workflows/ci.yml` exists
+- [x] 2.2 Workflow is valid (`actionlint`, or YAML parse fallback)
 
 #### Manual
 
