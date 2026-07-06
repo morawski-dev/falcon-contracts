@@ -152,7 +152,11 @@ try {
         throw new AnalysisFailedException("Model returned no clauses");
     validateFieldsPresent(result);   // non-blank text/rationale/recommendation + non-null enums, else AnalysisFailedException
     return result;
-} catch (IllegalStateException e) {                    // converter/JSON/enum failure surfaces here
+} catch (IllegalStateException | JacksonException e) {  // IllegalStateException: out-of-enum/schema
+                                                          // mismatch (BeanOutputConverter-wrapped).
+                                                          // JacksonException (tools.jackson.core):
+                                                          // raw parse failures, e.g. non-JSON content,
+                                                          // surface unwrapped — verified empirically.
     throw new AnalysisFailedException("Failed to analyze contract", e);
 }
 ```
@@ -165,20 +169,17 @@ try {
 
 **Intent**: Prove `analyze()` maps a fixed JSON reply into the records — without calling OpenRouter — and that failures raise `AnalysisFailedException`.
 
-**Contract**: `@SpringBootTest @Import({TestcontainersConfiguration.class, MockChatModelConfig.class})`, where the nested `@TestConfiguration` supplies the mock (the crux, research §2):
+**Contract**: A plain JUnit test — no Spring context needed, since `ContractAnalysisService` depends only on `ChatClient.Builder`, which `ChatClient.builder(ChatModel)` (a verified static factory on 2.0.0) can construct directly around a stub lambda, one per test case (each test needs a distinct mock response):
 
 ```java
-@TestConfiguration(proxyBeanMethods = false)
-static class MockChatModelConfig {
-    @Bean @Primary
-    ChatModel mockChatModel() {                 // real lambda → real default getOptions(), no NPE
-        var resp = new ChatResponse(List.of(new Generation(new AssistantMessage(FIXED_JSON))));
-        return prompt -> resp;
-    }
+private ContractAnalysisService serviceReturning(String content) {
+    ChatClient.Builder builder = ChatClient.builder(
+            prompt -> new ChatResponse(List.of(new Generation(new AssistantMessage(content)))));
+    return new ContractAnalysisService(builder);
 }
 ```
 
-`FIXED_JSON` = `docs/clause-classification.md` §6 (auto-renewal → HIGH + linked point). Tests: (a) `analyze()` returns a `ClauseAnalysisResult` whose clause is `HIGH`/`AUTO_RENEWAL` with a negotiation point; (b) a bad-JSON mock (or malformed content) → `AnalysisFailedException`; (c) an empty-clauses mock → `AnalysisFailedException`. Keep the test-profile dummy `api-key=test` so the real `openAiChatModel` still instantiates (never called).
+This still keeps the real `ChatClient` + `BeanOutputConverter`/`.entity()` + service logic in the test path (never calls OpenRouter). `FIXED_JSON` = `docs/clause-classification.md` §6 (auto-renewal → HIGH + linked point). Tests: (a) `analyze()` returns a `ClauseAnalysisResult` whose clause is `HIGH`/`AUTO_RENEWAL` with a negotiation point; (b) non-JSON content → `AnalysisFailedException` (surfaces as `tools.jackson.core.JacksonException`, not `IllegalStateException` — verified empirically, see Critical Implementation Details); (c) an empty-clauses mock → `AnalysisFailedException`; (d) an incomplete-field mock (blank `text`) → `AnalysisFailedException`.
 
 ### Success Criteria:
 
@@ -324,7 +325,7 @@ The browser flow: the paste form with progress feedback, the result view with co
 ### Unit / slice tests (backend, deterministic):
 
 - `AnalysisRepositoryTest` — `@SpringBootTest @Import(TestcontainersConfiguration.class)` (NOT `@DataJpaTest`); cascade save of `Analysis`+clauses+points; `findByIdAndOwnerId` returns for owner, empty for a different owner; `@AfterEach deleteAll()`.
-- `ContractAnalysisServiceTest` — the `@Bean @Primary ChatModel` lambda mock: fixed JSON → records mapping; malformed/empty → `AnalysisFailedException`.
+- `ContractAnalysisServiceTest` — a plain unit test (no Spring context) using `ChatClient.builder(ChatModel)` around a per-test stub lambda: fixed JSON → records mapping; malformed/empty/incomplete-field → `AnalysisFailedException`.
 - `AnalysisFlowTest` — the load-bearing e2e (MockMvc + mocked `ChatModel` + `.with(csrf())` + `.with(user(appUserDetails))` for two persisted users): paste→save→flagged clause + linked point; cross-user 404; validation→400; unknown id→404. Uses `new ObjectMapper()` (no injectable bean). The `LLM failure→502` case uses a **separate** test config / `@MockitoBean ChatModel` override returning malformed content — distinct from the happy-path good-JSON `@Bean`.
 
 ### Integration:
@@ -362,20 +363,20 @@ The single ~15s p95 cost is the synchronous LLM call (`POST /api/analyses`); the
 
 #### Automated
 
-- [x] 1.1 Context loads with 002 applied + entities validate (`./mvnw test -Dtest=FalconApplicationTests`)
-- [x] 1.2 `AnalysisRepositoryTest`: cascade save + `findByIdAndOwnerId` owner-scoping (owner vs non-owner)
+- [x] 1.1 Context loads with 002 applied + entities validate (`./mvnw test -Dtest=FalconApplicationTests`) — 31d35b2
+- [x] 1.2 `AnalysisRepositoryTest`: cascade save + `findByIdAndOwnerId` owner-scoping (owner vs non-owner) — 31d35b2
 
 #### Manual
 
-- [x] 1.3 `analyses`/`clauses`/`negotiation_points` tables + FKs exist after `spring-boot:run`
+- [x] 1.3 `analyses`/`clauses`/`negotiation_points` tables + FKs exist after `spring-boot:run` — 31d35b2
 
 ### Phase 2: LLM analysis service
 
 #### Automated
 
-- [ ] 2.1 Full build + suite green (`./mvnw clean package`)
-- [ ] 2.2 `ContractAnalysisServiceTest` mapping: mocked fixed JSON → `ClauseAnalysisResult` with a HIGH/AUTO_RENEWAL clause + linked point
-- [ ] 2.3 Failure cases: malformed JSON, empty clauses, and null/blank required field → `AnalysisFailedException`
+- [x] 2.1 Full build + suite green (`./mvnw clean package`)
+- [x] 2.2 `ContractAnalysisServiceTest` mapping: mocked fixed JSON → `ClauseAnalysisResult` with a HIGH/AUTO_RENEWAL clause + linked point
+- [x] 2.3 Failure cases: malformed JSON, empty clauses, and null/blank required field → `AnalysisFailedException`
 
 #### Manual
 
