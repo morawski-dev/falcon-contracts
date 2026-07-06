@@ -357,8 +357,8 @@ of `origin/main`, and observing runs is done via the web UI (`gh` is not install
 
 #### Automated
 
-- [x] 2.1 `.github/workflows/ci.yml` exists
-- [x] 2.2 Workflow is valid (`actionlint`, or YAML parse fallback)
+- [x] 2.1 `.github/workflows/ci.yml` exists — 0847eb4
+- [x] 2.2 Workflow is valid (`actionlint`, or YAML parse fallback) — 0847eb4
 
 #### Manual
 
