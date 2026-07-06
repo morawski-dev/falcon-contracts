@@ -1,10 +1,10 @@
 ---
 change_id: testing-auth-boundary-regression
 title: "Auth boundary regression: anonymous→401 route matrix (test-plan Phase 1)"
-status: implemented
+status: archived
 created: 2026-07-06
 updated: 2026-07-06
-archived_at: null
+archived_at: 2026-07-06T15:06:58Z
 ---
 
 ## Notes
