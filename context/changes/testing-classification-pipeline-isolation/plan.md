@@ -408,24 +408,24 @@ None — no schema or production-code changes. Test code plus one documentation 
 
 #### Automated
 
-- [x] 2.1 New matrix passes: `./mvnw test -Dtest=ConverterRobustnessTest`
-- [x] 2.2 Full backend suite still green: `./mvnw test`
+- [x] 2.1 New matrix passes: `./mvnw test -Dtest=ConverterRobustnessTest` — 4b37b0f
+- [x] 2.2 Full backend suite still green: `./mvnw test` — 4b37b0f
 
 #### Manual
 
-- [x] 2.3 Every case asserts the user-visible HTTP outcome, real converter in path (converter never mocked)
-- [x] 2.4 Fenced-JSON case pins the observed controlled outcome; zero-clause case pins 502 with the §7 cross-reference comment
+- [x] 2.3 Every case asserts the user-visible HTTP outcome, real converter in path (converter never mocked) — 4b37b0f
+- [x] 2.4 Fenced-JSON case pins the observed controlled outcome; zero-clause case pins 502 with the §7 cross-reference comment — 4b37b0f
 
 ### Phase 3: Risk #1 — Isolation Completeness + Test-Plan Sync
 
 #### Automated
 
-- [ ] 3.1 Repo isolation test passes: `./mvnw test -Dtest=AnalysisRepositoryTest`
-- [ ] 3.2 E2e no-leak test passes: `./mvnw test -Dtest=AnalysisIsolationTest`
-- [ ] 3.3 Full backend suite green: `./mvnw test`
+- [x] 3.1 Repo isolation test passes: `./mvnw test -Dtest=AnalysisRepositoryTest`
+- [x] 3.2 E2e no-leak test passes: `./mvnw test -Dtest=AnalysisIsolationTest`
+- [x] 3.3 Full backend suite green: `./mvnw test`
 
 #### Manual
 
-- [ ] 3.4 findByIdAndOwnerId exercised against real Postgres; wrong-owner empty, right-owner present
-- [ ] 3.5 Cross-user GET and missing-id GET are indistinguishable 404s
-- [ ] 3.6 test-plan.md §6.4/§6.5 filled, §7 zero-clause note added, §3 Phase-2 status advanced, per-phase note appended
+- [x] 3.4 findByIdAndOwnerId exercised against real Postgres; wrong-owner empty, right-owner present
+- [x] 3.5 Cross-user GET and missing-id GET are indistinguishable 404s
+- [x] 3.6 test-plan.md §6.4/§6.5 filled, §7 zero-clause note added, §3 Phase-2 status advanced, per-phase note appended

@@ -92,8 +92,8 @@ orchestrator updates Status as artifacts appear on disk.
 
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|---------------|------------|--------|---------------|
-| 1 | Auth boundary regression | Lock default-deny and the permit-list contract every new endpoint inherits (buildable now against F-01). | #5 | security-slice integration | planned | context/changes/testing-auth-boundary-regression/ |
-| 2 | Classification pipeline + isolation | The load-bearing mocked-LLM e2e, converter robustness, and the first cross-user isolation test on `Analysis` (waits for S-01). | #1, #2, #3 | integration + e2e | not started | — |
+| 1 | Auth boundary regression | Lock default-deny and the permit-list contract every new endpoint inherits (buildable now against F-01). | #5 | security-slice integration | complete | context/archive/2026-07-06-testing-auth-boundary-regression/ |
+| 2 | Classification pipeline + isolation | The load-bearing mocked-LLM e2e, converter robustness, and the first cross-user isolation test on `Analysis` (waits for S-01). | #1, #2, #3 | integration + e2e | complete | context/changes/testing-classification-pipeline-isolation/ |
 | 3 | Frontend / browser E2E | Paste→result flow, the "not legal advice" disclaimer guardrail, empty-input state, and the auth redirect (waits for the S-01 UI). | #4 | e2e (browser) | not started | — |
 | 4 | Quality-gate wiring | Lock the floor: per-edit hooks + pre-commit + CI (F-02) running the deterministic e2e (after the suites exist). | cross-cutting | gates | not started | — |
 | 5 | Model-quality eval (optional) | Measure and regression-guard the real model on known-risky clauses; above-core. | #6 | offline eval | not started | — |
@@ -177,17 +177,25 @@ relevant rollout phase ships; before that, it reads "TBD — see §3 Phase N."
 
 ### 6.4 Adding a cross-user isolation test
 
-- TBD — see §3 Phase 2. Pattern: two distinct users; assert User A cannot read or mutate User B's owned entity (404/403, not 200), and owner-scoped lists never leak another user's rows.
+- **Location**: `backend/src/test/java/com/morawski/dev/falcon/analysis/`.
+- **Pattern**: seed one user's owned entity directly via the repository (no LLM mock needed); assert the other user's GET returns 404 **byte-identical** to a truly-missing id (same status, same body) — a wrong-owner id must leak no existence signal. At the repository layer, exercise `findByIdAndOwnerId` against real Postgres (via Testcontainers) rather than mocking the repository, so the owner filter is genuinely proven.
+- **Reference tests**: `AnalysisRepositoryTest.findByIdAndOwnerIdScopesToOwner` (query-layer); `AnalysisIsolationTest.crossUserGetAndMissingIdGetAreIndistinguishable` (e2e no-existence-leak).
+- **Known gap**: owner-scoped *list* isolation is untestable until a list endpoint exists (`findAllByOwnerId` — deferred to S-03).
 
 ### 6.5 Adding a mocked-LLM classification test
 
-- TBD — see §3 Phase 2. Pattern: stub `ChatClient` with a fixed raw JSON reply; assert the *structure and classification contract* (a risky clause is not-LOW, has a linked non-empty negotiation point, no clause dropped, result persisted) — never the rationale prose (see §7).
+- **Location**: `backend/src/test/java/com/morawski/dev/falcon/analysis/`.
+- **Mocking pattern**: a `@TestConfiguration` nested class with a `@Bean @Primary ChatModel` implemented as a real lambda (`prompt -> new ChatResponse(...)`), or a mutable class holding a settable `content` field for parameterized cases — **never** a Mockito `@MockBean ChatClient` (an unstubbed mock NPEs on `chatModel.getOptions().mutate()`). This keeps the real `ChatClient` + `BeanOutputConverter` + `.entity()` in the path.
+- **Assertion pattern**: assert the *structure and classification contract* — a risky clause is not-LOW (assert the negative, not just the positive), no clause is dropped, each MEDIUM/HIGH clause has a non-null `clauseId` linking to a negotiation point, and each rationale is non-blank. Never assert rationale/recommendation prose (see §7), never assert an exception type in place of the user-visible HTTP outcome.
+- **Reference tests**: `AnalysisFlowTest` (single-clause happy path + cross-user 404); `ClassificationContractTest` (multi-clause no-drop/never-downgrade/selective-linkage); `ConverterRobustnessTest` (ragged-payload matrix — bad enum casing, extra/missing field, fenced JSON, empty content, zero-clause valid — via a mutable `ChatModel` bean sharing one Spring context).
 
 ### 6.6 Adding a browser E2E test
 
 - TBD — see §3 Phase 3. Pattern: drive the logged-in paste→result flow against a deterministic backend; assert the disclaimer is visible and the empty-input explanatory state renders; role/label locators only, wait on state not time, unique ids + cleanup per test.
 
 **Per-rollout-phase notes.** (Empty on first write. After each phase lands, `/10x-implement` appends a 2–3 line note here capturing anything surprising the phase taught — a shared fixture location, a converter quirk, an isolation-query gotcha.)
+
+- Phase 2 (classification pipeline + isolation, 2026-07-07): a shared mutable `@Primary ChatModel` fixture (a settable `content` field) lets a `@ParameterizedTest` drive per-case model replies within one Spring context — cheaper than a context-per-case mock. The `docs/clause-classification.md` §6 fixture's `negotiationPoints[].clauseText` is a truncated prefix of the clause `text`; `matchClauseId` links by exact-then-substring match, so linkage assertions must expect prefix-matching, not equality. `negotiation_points.clause_id` is a plain FK column (no JPA relationship) — tests that set it must null it in a first committed transaction before `deleteAll()`, or the FK constraint blocks cleanup.
 
 ## 7. What We Deliberately Don't Test
 
@@ -198,6 +206,7 @@ contributors should respect these unless the underlying assumption changes.
 - **Model judgment quality as a CI gate** — Risk #6 is never allowed to block CI. It lives in the optional offline eval (§3 Phase 5) or as a documented limitation backstopped by the disclaimer; a deterministic test can only ever prove the wiring, not the judgment. (Source: Phase 2 interview Q1 + challenger pass.)
 - **Resource abuse and log-leakage of contract text** — huge pastes / mass-submission cost and sensitive text in logs are deferred to observability and config hardening at this solo / low-QPS MVP scale, not covered by unit/integration tests now. Re-evaluate if usage scales or a real cost/PII incident occurs. (Source: abuse-lens review.)
 - **Vendored UI primitives (shadcn/ui: button, input, card, label)** — the library is the test; Falcon tests its own composition (via §3 Phase 3 E2E), not the primitives. (Source: cost × signal.)
+- **Zero-clause valid model replies** — a *valid* reply that legitimately finds no risky clauses is currently folded into the same 502 error path as a real LLM/converter failure (`ContractAnalysisService`'s empty-clause guard). This is pinned by a characterization test (`ConverterRobustnessTest`), not silently accepted: a distinct "no risky clauses found" explanatory success state is a follow-up **feature** change, not a test gap, deferred beyond Phase 2's test-hardening scope. (Source: Phase 2 plan, Critical Implementation Details.)
 
 ## 8. Freshness Ledger
 
