@@ -254,39 +254,39 @@ Additive only: one new index changeset (`003-*`), no data backfill, no column ch
 
 #### Automated
 
-- [x] 1.1 Migration 003 applies via test context (`./mvnw test` runs Liquibase on Testcontainers Postgres) — 16de592
-- [x] 1.2 Backend tests pass: `cd backend && ./mvnw test` — 16de592
-- [x] 1.3 List-never-leaks test fails if query changed to bare `findAll()` (guardrail sanity) — 16de592
-- [x] 1.4 `GET /api/analyses` in auth-boundary matrix returns 401 anonymously — 16de592
+- [x] 1.1 Migration 003 applies via test context (`./mvnw test` runs Liquibase on Testcontainers Postgres) — 5e0f012
+- [x] 1.2 Backend tests pass: `cd backend && ./mvnw test` — 5e0f012
+- [x] 1.3 List-never-leaks test fails if query changed to bare `findAll()` (guardrail sanity) — 5e0f012
+- [x] 1.4 `GET /api/analyses` in auth-boundary matrix returns 401 anonymously — 5e0f012
 
 #### Manual
 
-- [x] 1.5 Authenticated `GET /api/analyses` returns owner's analyses newest-first, summary fields only — 16de592
-- [x] 1.6 Second account's `GET /api/analyses` never shows the first account's analyses — 16de592
+- [x] 1.5 Authenticated `GET /api/analyses` returns owner's analyses newest-first, summary fields only — 5e0f012
+- [x] 1.6 Second account's `GET /api/analyses` never shows the first account's analyses — 5e0f012
 
 ### Phase 2: Dashboard history list (frontend)
 
 #### Automated
 
-- [x] 2.1 Lint passes: `pnpm --dir frontend lint` — b3098a9
-- [x] 2.2 Production build passes: `pnpm --dir frontend build` — b3098a9
+- [x] 2.1 Lint passes: `pnpm --dir frontend lint` — 1e09ae5
+- [x] 2.2 Production build passes: `pnpm --dir frontend build` — 1e09ae5
 
 #### Manual
 
-- [x] 2.3 Dashboard lists analyses newest-first; row click opens correct `/analyses/[id]` — b3098a9
-- [x] 2.4 New account sees Polish empty-state CTA routing to `/analyses/new` — b3098a9
-- [x] 2.5 Loading state shows skeletons, no empty/error flash — b3098a9
-- [x] 2.6 Two accounts each see only their own analyses — b3098a9
+- [x] 2.3 Dashboard lists analyses newest-first; row click opens correct `/analyses/[id]` — 1e09ae5
+- [x] 2.4 New account sees Polish empty-state CTA routing to `/analyses/new` — 1e09ae5
+- [x] 2.5 Loading state shows skeletons, no empty/error flash — 1e09ae5
+- [x] 2.6 Two accounts each see only their own analyses — 1e09ae5
 
 ### Phase 3: First Playwright E2E harness + history test
 
 #### Automated
 
-- [x] 3.1 Playwright installed and config valid: `pnpm --dir frontend exec playwright --version` — 6764a4b
-- [x] 3.2 E2E test passes: `pnpm --dir frontend exec playwright test` — 6764a4b
-- [x] 3.3 Spec uses no `waitForTimeout` and no CSS/XPath selectors — 6764a4b
+- [x] 3.1 Playwright installed and config valid: `pnpm --dir frontend exec playwright --version` — a0c2c2c
+- [x] 3.2 E2E test passes: `pnpm --dir frontend exec playwright test` — a0c2c2c
+- [x] 3.3 Spec uses no `waitForTimeout` and no CSS/XPath selectors — a0c2c2c
 
 #### Manual
 
-- [x] 3.4 Re-running the test twice passes (independence + cleanup) — 6764a4b
-- [x] 3.5 Test fails when the dashboard list is deliberately broken (exercises the feature) — 6764a4b
+- [x] 3.4 Re-running the test twice passes (independence + cleanup) — a0c2c2c
+- [x] 3.5 Test fails when the dashboard list is deliberately broken (exercises the feature) — a0c2c2c
