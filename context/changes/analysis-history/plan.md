@@ -288,5 +288,5 @@ Additive only: one new index changeset (`003-*`), no data backfill, no column ch
 
 #### Manual
 
-- [x] 3.4 Re-running the test twice passes (independence + cleanup) — a0c2c2c
+- [x] 3.4 Re-running the test twice passes (independence verified; cleanup blocked on S-04) — a0c2c2c
 - [x] 3.5 Test fails when the dashboard list is deliberately broken (exercises the feature) — a0c2c2c
