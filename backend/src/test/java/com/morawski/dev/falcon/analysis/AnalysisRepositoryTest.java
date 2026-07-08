@@ -1,6 +1,7 @@
 package com.morawski.dev.falcon.analysis;
 
 import com.morawski.dev.falcon.TestcontainersConfiguration;
+import com.morawski.dev.falcon.analysis.dto.AnalysisSummaryResponse;
 import com.morawski.dev.falcon.user.User;
 import com.morawski.dev.falcon.user.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -10,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -66,6 +68,25 @@ class AnalysisRepositoryTest {
 
 		assertThat(foundByOwner).isPresent();
 		assertThat(foundByOtherOwner).isEmpty();
+	}
+
+	@Test
+	void findSummariesByOwnerIdReturnsOnlyOwnerRowsNewestFirst() {
+		Long ownerId = persistUser("history-owner@example.com");
+		Long otherOwnerId = persistUser("history-other@example.com");
+
+		Analysis older = analysisRepository.save(
+				new Analysis(ownerId, "Umowa najmu", "Tresc umowy...", AnalysisStatus.ANALYZED, Instant.now().minusSeconds(60)));
+		Analysis newer = analysisRepository.save(
+				new Analysis(ownerId, "Umowa B2B", "Tresc umowy...", AnalysisStatus.ANALYZED, Instant.now()));
+		analysisRepository.save(
+				new Analysis(otherOwnerId, "Cudza umowa", "Tresc umowy...", AnalysisStatus.ANALYZED, Instant.now()));
+
+		List<AnalysisSummaryResponse> summaries = analysisRepository.findSummariesByOwnerId(ownerId);
+
+		assertThat(summaries).hasSize(2);
+		assertThat(summaries.get(0).id()).as("newest analysis must be first").isEqualTo(newer.getId());
+		assertThat(summaries.get(1).id()).isEqualTo(older.getId());
 	}
 
 }

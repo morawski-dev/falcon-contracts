@@ -30,6 +30,7 @@ class AuthBoundaryMatrixTest {
 	private static Stream<String> protectedGetRoutes() {
 		return Stream.of(
 				"/api/auth/me",
+				"/api/analyses",
 				"/api/analyses/1",
 				"/actuator/health",
 				"/api/__does_not_exist__");

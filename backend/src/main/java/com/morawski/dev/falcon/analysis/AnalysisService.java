@@ -1,6 +1,7 @@
 package com.morawski.dev.falcon.analysis;
 
 import com.morawski.dev.falcon.analysis.dto.AnalysisResponse;
+import com.morawski.dev.falcon.analysis.dto.AnalysisSummaryResponse;
 import com.morawski.dev.falcon.analysis.dto.ClauseResponse;
 import com.morawski.dev.falcon.analysis.dto.NegotiationPointResponse;
 import com.morawski.dev.falcon.analysis.llm.AnalyzedClause;
@@ -59,6 +60,10 @@ public class AnalysisService {
 		Analysis saved = analysisRepository.save(savedWithClauses);
 
 		return toResponse(saved);
+	}
+
+	public List<AnalysisSummaryResponse> listAnalyses(Long ownerId) {
+		return analysisRepository.findSummariesByOwnerId(ownerId);
 	}
 
 	@Transactional(readOnly = true)

@@ -1,6 +1,7 @@
 package com.morawski.dev.falcon.analysis;
 
 import com.morawski.dev.falcon.analysis.dto.AnalysisResponse;
+import com.morawski.dev.falcon.analysis.dto.AnalysisSummaryResponse;
 import com.morawski.dev.falcon.analysis.dto.CreateAnalysisRequest;
 import com.morawski.dev.falcon.user.AppUserDetails;
 import jakarta.validation.Valid;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/analyses")
@@ -29,6 +32,11 @@ public class AnalysisController {
 			@AuthenticationPrincipal AppUserDetails principal) {
 		AnalysisResponse response = analysisService.createAnalysis(request.title(), request.rawText(), principal.getId());
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
+	}
+
+	@GetMapping
+	public List<AnalysisSummaryResponse> list(@AuthenticationPrincipal AppUserDetails principal) {
+		return analysisService.listAnalyses(principal.getId());
 	}
 
 	@GetMapping("/{id}")

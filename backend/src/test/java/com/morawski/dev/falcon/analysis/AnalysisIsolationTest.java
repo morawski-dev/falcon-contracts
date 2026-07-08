@@ -23,9 +23,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 /**
  * Risk #1 (test-plan.md §2): ownership must not leak existence. AnalysisFlowTest already proves
  * a cross-user GET returns 404; this test proves that 404 is byte-identical to a truly missing
- * id, so a wrong-owner id can't be distinguished from one that was never created. List-isolation
- * (an owner-scoped list never leaking another user's rows) is deferred to S-03 — there is no
- * list endpoint yet.
+ * id, so a wrong-owner id can't be distinguished from one that was never created. It also proves
+ * the owner-scoped list (GET /api/analyses, S-03) never leaks another user's rows.
  */
 @Import(TestcontainersConfiguration.class)
 @SpringBootTest
@@ -81,6 +80,30 @@ class AnalysisIsolationTest {
 		assertThat(crossUserResult.getResponse().getContentAsString())
 				.as("no distinguishing signal in the response body either")
 				.isEqualTo(missingIdResult.getResponse().getContentAsString());
+	}
+
+	@Test
+	void ownerScopedListNeverLeaksAnotherUsersAnalyses() throws Exception {
+		User ownerA = persistUser("list-owner-a@example.com");
+		User ownerB = persistUser("list-owner-b@example.com");
+
+		Analysis analysisA = new Analysis(ownerA.getId(), "Umowa A", "Tresc umowy...", AnalysisStatus.ANALYZED, Instant.now());
+		new Clause(analysisA, "Automatyczne przedluzenie na 12 miesiecy.", RiskLevel.HIGH, RiskType.AUTO_RENEWAL,
+				"Dlugi okres wypowiedzenia utrudnia wyjscie z umowy.");
+		analysisRepository.save(analysisA);
+
+		Analysis analysisB = new Analysis(ownerB.getId(), "Umowa B", "Tresc umowy...", AnalysisStatus.ANALYZED, Instant.now());
+		new Clause(analysisB, "Kara umowna 50000 zl.", RiskLevel.HIGH, RiskType.PENALTY,
+				"Wysoka kara moze byc nieproporcjonalna.");
+		analysisRepository.save(analysisB);
+
+		MvcResult listResult = mockMvc.perform(get("/api/analyses").with(user(new AppUserDetails(ownerB)))).andReturn();
+
+		assertThat(listResult.getResponse().getStatus()).isEqualTo(200);
+		assertThat(listResult.getResponse().getContentAsString())
+				.as("owner B's list must contain only owner B's analyses")
+				.contains("Umowa B")
+				.doesNotContain("Umowa A");
 	}
 
 }

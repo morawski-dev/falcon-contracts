@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-index-analyses-owner
+      author: falcon
+      changes:
+        - createIndex:
+            indexName: idx_analyses_owner_created_at
+            tableName: analyses
+            columns:
+              - column:
+                  name: owner_id
+              - column:
+                  name: created_at
+                  descending: true

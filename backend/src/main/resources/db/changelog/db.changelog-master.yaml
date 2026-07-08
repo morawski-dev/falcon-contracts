@@ -8,4 +8,6 @@ databaseChangeLog:
       file: db/changelog/changes/001-create-users.yaml
   - include:
       file: db/changelog/changes/002-create-analyses.yaml
+  - include:
+      file: db/changelog/changes/003-index-analyses-owner.yaml
 
