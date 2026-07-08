@@ -282,11 +282,11 @@ Additive only: one new index changeset (`003-*`), no data backfill, no column ch
 
 #### Automated
 
-- [x] 3.1 Playwright installed and config valid: `pnpm --dir frontend exec playwright --version`
-- [x] 3.2 E2E test passes: `pnpm --dir frontend exec playwright test`
-- [x] 3.3 Spec uses no `waitForTimeout` and no CSS/XPath selectors
+- [x] 3.1 Playwright installed and config valid: `pnpm --dir frontend exec playwright --version` — 6764a4b
+- [x] 3.2 E2E test passes: `pnpm --dir frontend exec playwright test` — 6764a4b
+- [x] 3.3 Spec uses no `waitForTimeout` and no CSS/XPath selectors — 6764a4b
 
 #### Manual
 
-- [x] 3.4 Re-running the test twice passes (independence + cleanup)
-- [x] 3.5 Test fails when the dashboard list is deliberately broken (exercises the feature)
+- [x] 3.4 Re-running the test twice passes (independence + cleanup) — 6764a4b
+- [x] 3.5 Test fails when the dashboard list is deliberately broken (exercises the feature) — 6764a4b
