@@ -3,7 +3,7 @@ project: Falcon
 version: 1
 status: draft
 created: 2026-07-04
-updated: 2026-07-07
+updated: 2026-07-08
 prd_version: 1
 main_goal: market-feedback
 top_blocker: capacity
@@ -32,7 +32,7 @@ Falcon turns a pasted contract into a per-clause risk breakdown: an LLM splits t
 | F-01  | identity-and-isolation   | (foundation) register, log in; every analysis is owner-scoped   | —             | FR-001, Access Control                          | done     |
 | S-01  | analyze-and-save-contract | paste a contract → saved, classified breakdown + negotiation points | F-01      | US-01, FR-002, FR-003, FR-004, FR-005, FR-006, FR-008 | done |
 | S-02  | clause-decision-status   | mark each clause accepted / to-negotiate / rejected             | S-01          | FR-007                                          | proposed |
-| S-03  | analysis-history         | see and reopen their past analyses                              | S-01          | FR-009                                          | proposed |
+| S-03  | analysis-history         | see and reopen their past analyses                              | S-01          | FR-009                                          | done     |
 | S-04  | delete-analysis          | delete one of their saved analyses                              | S-01          | FR-010                                          | proposed |
 | F-02  | ci-build-and-test        | (foundation) build + tests run automatically on every push      | —             | test-determinism guardrail                      | done |
 
@@ -124,7 +124,7 @@ Foundations below assume these are present and do NOT re-scaffold them. The them
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** The Secondary signal, not the Primary — kept because full scope was accepted at a realistic 3-week budget. The load-bearing detail is that the list query must be owner-scoped (another isolation-guardrail surface); a leak here is a guardrail regression even though the feature is "just a list".
-- **Status:** proposed
+- **Status:** done
 
 ### S-04: Delete an old analysis
 
@@ -178,3 +178,4 @@ None. The PRD closed with zero open questions and a clean shape cross-check, and
 - **F-01: (foundation) users can register, log in, and hold a session; every `Analysis` (and its clauses and negotiation points) is scoped to its owner and unreachable by any other authenticated user — isolation enforced at the query/security layer, not just the UI.** — Archived 2026-07-06 → `context/archive/2026-07-04-identity-and-isolation/`. Lesson: —.
 - **S-01: a logged-in user can paste contract text, give it a title, and submit it; Falcon splits it into clauses, classifies each (risk level low/medium/high, risk type, plain-language rationale), generates at least one negotiation point for the risky clause(s), and saves the owner-scoped result — shown with a visible "supporting analysis, not legal advice" disclaimer and continuous progress feedback during the wait. Empty or unparseable input shows an explanatory state, not a silent empty result.** — Archived 2026-07-06 → `context/archive/2026-07-06-analyze-and-save-contract/`. Lesson: —.
 - **F-02: (foundation) both apps build and their tests — including S-01's deterministic, mocked-LLM e2e — run automatically on every push, giving a stable pass/fail signal in CI.** — Archived 2026-07-06 → `context/archive/2026-07-06-ci-build-and-test/`. Lesson: —.
+- **S-03: a returning user can see a list of their past analyses and reopen any one — strictly owner-scoped. This is the Secondary success signal (usable cross-session return).** — Archived 2026-07-08 → `context/archive/2026-07-08-analysis-history/`. Lesson: —.
