@@ -254,29 +254,29 @@ Additive only: one new index changeset (`003-*`), no data backfill, no column ch
 
 #### Automated
 
-- [x] 1.1 Migration 003 applies via test context (`./mvnw test` runs Liquibase on Testcontainers Postgres)
-- [x] 1.2 Backend tests pass: `cd backend && ./mvnw test`
-- [x] 1.3 List-never-leaks test fails if query changed to bare `findAll()` (guardrail sanity)
-- [x] 1.4 `GET /api/analyses` in auth-boundary matrix returns 401 anonymously
+- [x] 1.1 Migration 003 applies via test context (`./mvnw test` runs Liquibase on Testcontainers Postgres) — 16de592
+- [x] 1.2 Backend tests pass: `cd backend && ./mvnw test` — 16de592
+- [x] 1.3 List-never-leaks test fails if query changed to bare `findAll()` (guardrail sanity) — 16de592
+- [x] 1.4 `GET /api/analyses` in auth-boundary matrix returns 401 anonymously — 16de592
 
 #### Manual
 
-- [ ] 1.5 Authenticated `GET /api/analyses` returns owner's analyses newest-first, summary fields only
-- [ ] 1.6 Second account's `GET /api/analyses` never shows the first account's analyses
+- [x] 1.5 Authenticated `GET /api/analyses` returns owner's analyses newest-first, summary fields only — 16de592
+- [x] 1.6 Second account's `GET /api/analyses` never shows the first account's analyses — 16de592
 
 ### Phase 2: Dashboard history list (frontend)
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `pnpm --dir frontend lint`
-- [ ] 2.2 Production build passes: `pnpm --dir frontend build`
+- [x] 2.1 Lint passes: `pnpm --dir frontend lint`
+- [x] 2.2 Production build passes: `pnpm --dir frontend build`
 
 #### Manual
 
-- [ ] 2.3 Dashboard lists analyses newest-first; row click opens correct `/analyses/[id]`
-- [ ] 2.4 New account sees Polish empty-state CTA routing to `/analyses/new`
-- [ ] 2.5 Loading state shows skeletons, no empty/error flash
-- [ ] 2.6 Two accounts each see only their own analyses
+- [x] 2.3 Dashboard lists analyses newest-first; row click opens correct `/analyses/[id]`
+- [x] 2.4 New account sees Polish empty-state CTA routing to `/analyses/new`
+- [x] 2.5 Loading state shows skeletons, no empty/error flash
+- [x] 2.6 Two accounts each see only their own analyses
 
 ### Phase 3: First Playwright E2E harness + history test
 

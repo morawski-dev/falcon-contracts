@@ -5,12 +5,22 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { me, logout, type CurrentUser } from "@/lib/auth";
+import { getAnalyses, ANALYSIS_STATUS_LABEL, type AnalysisSummary } from "@/lib/analyses";
+import { ApiError } from "@/lib/api";
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("pl-PL", { year: "numeric", month: "long", day: "numeric" });
+}
 
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [analyses, setAnalyses] = useState<AnalysisSummary[] | null>(null);
+  const [analysesLoading, setAnalysesLoading] = useState(true);
 
   useEffect(() => {
     me()
@@ -18,6 +28,20 @@ export default function DashboardPage() {
       .catch(() => router.push("/login"))
       .finally(() => setLoading(false));
   }, [router]);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+    getAnalyses()
+      .then(setAnalyses)
+      .catch((err) => {
+        if (err instanceof ApiError && err.status === 401) {
+          router.push("/login");
+        }
+      })
+      .finally(() => setAnalysesLoading(false));
+  }, [user, router]);
 
   async function handleLogout() {
     await logout();
@@ -29,21 +53,63 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center p-6">
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Falcon</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4">
-          <p className="text-sm text-foreground">Zalogowano jako {user?.email}</p>
-          <Button asChild>
-            <Link href="/analyses/new">Nowa analiza</Link>
-          </Button>
-          <Button variant="outline" onClick={handleLogout}>
-            Wyloguj
-          </Button>
-        </CardContent>
-      </Card>
+    <div className="flex flex-1 justify-center p-6">
+      <div className="flex w-full max-w-2xl flex-col gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Falcon</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <p className="text-sm text-foreground">Zalogowano jako {user?.email}</p>
+            <div className="flex gap-2">
+              <Button asChild>
+                <Link href="/analyses/new">Nowa analiza</Link>
+              </Button>
+              <Button variant="outline" onClick={handleLogout}>
+                Wyloguj
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {analysesLoading && (
+          <div className="flex flex-col gap-3">
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-20 w-full" />
+          </div>
+        )}
+
+        {!analysesLoading && analyses !== null && analyses.length === 0 && (
+          <Card>
+            <CardContent className="flex flex-col items-center gap-4 p-6 text-center">
+              <p className="text-sm text-muted-foreground">
+                Nie masz jeszcze żadnych analiz. Wklej treść umowy, aby rozpocząć pierwszą.
+              </p>
+              <Button asChild>
+                <Link href="/analyses/new">Nowa analiza</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {!analysesLoading && analyses !== null && analyses.length > 0 && (
+          <div className="flex flex-col gap-3">
+            {analyses.map((analysis) => (
+              <Link key={analysis.id} href={`/analyses/${analysis.id}`}>
+                <Card className="transition-colors hover:bg-muted/50">
+                  <CardContent className="flex items-center justify-between gap-4 p-4">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-sm font-medium text-foreground">{analysis.title}</span>
+                      <span className="text-xs text-muted-foreground">{formatDate(analysis.createdAt)}</span>
+                    </div>
+                    <Badge variant="outline">{ANALYSIS_STATUS_LABEL[analysis.status]}</Badge>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

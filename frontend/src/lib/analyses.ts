@@ -6,6 +6,12 @@ export type ClauseDecision = "PENDING" | "ACCEPTED" | "TO_NEGOTIATE" | "REJECTED
 
 export type AnalysisStatus = "DRAFT" | "ANALYZED" | "REVIEWED";
 
+export const ANALYSIS_STATUS_LABEL: Record<AnalysisStatus, string> = {
+  DRAFT: "Szkic",
+  ANALYZED: "Przeanalizowana",
+  REVIEWED: "Sprawdzona",
+};
+
 export type Clause = {
   id: number;
   text: string;
@@ -31,6 +37,13 @@ export type Analysis = {
   negotiationPoints: NegotiationPoint[];
 };
 
+export type AnalysisSummary = {
+  id: number;
+  title: string;
+  status: AnalysisStatus;
+  createdAt: string;
+};
+
 export async function createAnalysis(title: string, rawText: string): Promise<Analysis> {
   await getCsrf();
   const response = await apiFetch("/api/analyses", {
@@ -42,5 +55,10 @@ export async function createAnalysis(title: string, rawText: string): Promise<An
 
 export async function getAnalysis(id: number | string): Promise<Analysis> {
   const response = await apiFetch(`/api/analyses/${id}`);
+  return response.json();
+}
+
+export async function getAnalyses(): Promise<AnalysisSummary[]> {
+  const response = await apiFetch("/api/analyses");
   return response.json();
 }
