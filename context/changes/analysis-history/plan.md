@@ -268,25 +268,25 @@ Additive only: one new index changeset (`003-*`), no data backfill, no column ch
 
 #### Automated
 
-- [x] 2.1 Lint passes: `pnpm --dir frontend lint`
-- [x] 2.2 Production build passes: `pnpm --dir frontend build`
+- [x] 2.1 Lint passes: `pnpm --dir frontend lint` — b3098a9
+- [x] 2.2 Production build passes: `pnpm --dir frontend build` — b3098a9
 
 #### Manual
 
-- [x] 2.3 Dashboard lists analyses newest-first; row click opens correct `/analyses/[id]`
-- [x] 2.4 New account sees Polish empty-state CTA routing to `/analyses/new`
-- [x] 2.5 Loading state shows skeletons, no empty/error flash
-- [x] 2.6 Two accounts each see only their own analyses
+- [x] 2.3 Dashboard lists analyses newest-first; row click opens correct `/analyses/[id]` — b3098a9
+- [x] 2.4 New account sees Polish empty-state CTA routing to `/analyses/new` — b3098a9
+- [x] 2.5 Loading state shows skeletons, no empty/error flash — b3098a9
+- [x] 2.6 Two accounts each see only their own analyses — b3098a9
 
 ### Phase 3: First Playwright E2E harness + history test
 
 #### Automated
 
-- [ ] 3.1 Playwright installed and config valid: `pnpm --dir frontend exec playwright --version`
-- [ ] 3.2 E2E test passes: `pnpm --dir frontend exec playwright test`
-- [ ] 3.3 Spec uses no `waitForTimeout` and no CSS/XPath selectors
+- [x] 3.1 Playwright installed and config valid: `pnpm --dir frontend exec playwright --version`
+- [x] 3.2 E2E test passes: `pnpm --dir frontend exec playwright test`
+- [x] 3.3 Spec uses no `waitForTimeout` and no CSS/XPath selectors
 
 #### Manual
 
-- [ ] 3.4 Re-running the test twice passes (independence + cleanup)
-- [ ] 3.5 Test fails when the dashboard list is deliberately broken (exercises the feature)
+- [x] 3.4 Re-running the test twice passes (independence + cleanup)
+- [x] 3.5 Test fails when the dashboard list is deliberately broken (exercises the feature)
