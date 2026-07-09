@@ -376,6 +376,6 @@ No schema change. `user_decision` already exists as a non-null column defaulting
 
 #### Manual
 
-- [x] 3.1 The new spec passes locally against a running stack: `cd frontend && pnpm test:e2e clause-decision.spec.ts`
-- [x] 3.2 The existing spec still passes: `cd frontend && pnpm test:e2e analysis-history.spec.ts`
-- [x] 3.3 CI remains green and its duration is unchanged (neither spec is run by CI)
+- [x] 3.1 The new spec passes locally against a running stack: `cd frontend && pnpm test:e2e clause-decision.spec.ts` — 3896d85
+- [x] 3.2 The existing spec still passes: `cd frontend && pnpm test:e2e analysis-history.spec.ts` — 3896d85
+- [x] 3.3 CI remains green and its duration is unchanged (neither spec is run by CI) — 3896d85
