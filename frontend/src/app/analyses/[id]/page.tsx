@@ -157,7 +157,7 @@ export default function AnalysisResultPage() {
 
               <div
                 role="group"
-                aria-label={`Decyzja: klauzula ${index + 1}`}
+                aria-label={`Decyzja: klauzula ${index + 1} (${RISK_TYPE_LABEL[clause.riskType]})`}
                 className="flex flex-wrap gap-2"
               >
                 {DECISION_OPTIONS.map((decision) => {

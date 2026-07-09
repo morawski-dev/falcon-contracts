@@ -360,22 +360,22 @@ No schema change. `user_decision` already exists as a non-null column defaulting
 
 #### Automated
 
-- [x] 2.1 Lint passes: `cd frontend && pnpm lint`
-- [x] 2.2 Production build passes: `cd frontend && pnpm build`
+- [x] 2.1 Lint passes: `cd frontend && pnpm lint` — 8c428b4
+- [x] 2.2 Production build passes: `cd frontend && pnpm build` — 8c428b4
 
 #### Manual
 
-- [x] 2.3 Clicking a decision marks the clause immediately, with no visible round-trip
-- [x] 2.4 The decision survives a page reload
-- [x] 2.5 Clicking the active decision returns the clause to `Bez decyzji`
-- [x] 2.6 With the backend stopped, a click rolls back only that clause and shows inline error copy
-- [x] 2.7 The "To nie jest porada prawna" disclaimer is still visible
-- [x] 2.8 Decision buttons are keyboard-operable and announce their labels
+- [x] 2.3 Clicking a decision marks the clause immediately, with no visible round-trip — 8c428b4
+- [x] 2.4 The decision survives a page reload — 8c428b4
+- [x] 2.5 Clicking the active decision returns the clause to `Bez decyzji` — 8c428b4
+- [x] 2.6 With the backend stopped, a click rolls back only that clause and shows inline error copy — 8c428b4
+- [x] 2.7 The "To nie jest porada prawna" disclaimer is still visible — 8c428b4
+- [x] 2.8 Decision buttons are keyboard-operable and announce their labels — 8c428b4
 
 ### Phase 3: End-to-end coverage
 
 #### Manual
 
-- [ ] 3.1 The new spec passes locally against a running stack: `cd frontend && pnpm test:e2e clause-decision.spec.ts`
-- [ ] 3.2 The existing spec still passes: `cd frontend && pnpm test:e2e analysis-history.spec.ts`
-- [ ] 3.3 CI remains green and its duration is unchanged (neither spec is run by CI)
+- [x] 3.1 The new spec passes locally against a running stack: `cd frontend && pnpm test:e2e clause-decision.spec.ts`
+- [x] 3.2 The existing spec still passes: `cd frontend && pnpm test:e2e analysis-history.spec.ts`
+- [x] 3.3 CI remains green and its duration is unchanged (neither spec is run by CI)
