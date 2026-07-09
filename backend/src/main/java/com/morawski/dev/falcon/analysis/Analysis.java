@@ -91,7 +91,7 @@ public class Analysis {
 
 	public Clause decide(Long clauseId, ClauseDecision decision) {
 		for (Clause clause : clauses) {
-			if (clause.getId().equals(clauseId)) {
+			if (clauseId.equals(clause.getId())) {
 				clause.setUserDecision(decision);
 				return clause;
 			}

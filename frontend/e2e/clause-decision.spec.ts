@@ -17,6 +17,10 @@ import { test, expect } from "@playwright/test";
 // Known limitation: S-04 (delete-analysis) is not built yet, so there is no UI path
 // to remove the user/analysis this test creates. Each run uses a fresh,
 // timestamp-suffixed account so re-runs and parallel runs never collide.
+//
+// Known limitation: the risk-type locator assumes CONTRACT_TEXT below produces a
+// unique risk type per clause. If a second clause is ever added that also classifies
+// as AUTO_RENEWAL, the locator would match multiple groups and trip strict mode.
 
 const CONTRACT_TEXT = `1. Umowa zostaje zawarta na czas okreslony 12 miesiecy i ulega automatycznemu przedluzeniu na kolejne 12 miesiecy, jesli zadna ze stron nie zlozy pisemnego wypowiedzenia najpozniej na 90 dni przed uplywem okresu obowiazywania.
 2. W przypadku odstapienia od umowy przez Zleceniobiorce przed terminem, Zleceniobiorca zobowiazany jest do zaplaty kary umownej w wysokosci 50000 zl.
