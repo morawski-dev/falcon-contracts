@@ -3,13 +3,23 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getAnalysis, type Analysis, type NegotiationPoint } from "@/lib/analyses";
+import {
+  getAnalysis,
+  updateClauseDecision,
+  CLAUSE_DECISION_LABEL,
+  type Analysis,
+  type ClauseDecision,
+  type NegotiationPoint,
+} from "@/lib/analyses";
 import { ApiError } from "@/lib/api";
 import { RISK_LEVEL_BADGE_CLASS, RISK_LEVEL_LABEL, RISK_TYPE_LABEL } from "@/lib/risk";
+
+const DECISION_OPTIONS: ClauseDecision[] = ["ACCEPTED", "TO_NEGOTIATE", "REJECTED"];
 
 export default function AnalysisResultPage() {
   const router = useRouter();
@@ -17,6 +27,7 @@ export default function AnalysisResultPage() {
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [decisionErrors, setDecisionErrors] = useState<Record<number, string>>({});
 
   useEffect(() => {
     getAnalysis(params.id)
@@ -30,6 +41,53 @@ export default function AnalysisResultPage() {
       })
       .finally(() => setLoading(false));
   }, [params.id, router]);
+
+  async function handleDecide(clauseId: number, decision: ClauseDecision) {
+    if (!analysis) {
+      return;
+    }
+    const clause = analysis.clauses.find((c) => c.id === clauseId);
+    if (!clause) {
+      return;
+    }
+    const previousDecision = clause.userDecision;
+    const nextDecision = previousDecision === decision ? "PENDING" : decision;
+
+    setAnalysis({
+      ...analysis,
+      clauses: analysis.clauses.map((c) =>
+        c.id === clauseId ? { ...c, userDecision: nextDecision } : c
+      ),
+    });
+    setDecisionErrors((prev) => {
+      const next = { ...prev };
+      delete next[clauseId];
+      return next;
+    });
+
+    try {
+      await updateClauseDecision(analysis.id, clauseId, nextDecision);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        router.push("/login");
+        return;
+      }
+      setAnalysis((current) =>
+        current
+          ? {
+              ...current,
+              clauses: current.clauses.map((c) =>
+                c.id === clauseId ? { ...c, userDecision: previousDecision } : c
+              ),
+            }
+          : current
+      );
+      setDecisionErrors((prev) => ({
+        ...prev,
+        [clauseId]: "Nie udało się zapisać decyzji. Spróbuj ponownie.",
+      }));
+    }
+  }
 
   if (loading) {
     return (
@@ -85,7 +143,7 @@ export default function AnalysisResultPage() {
           </CardHeader>
         </Card>
 
-        {analysis.clauses.map((clause) => (
+        {analysis.clauses.map((clause, index) => (
           <Card key={clause.id}>
             <CardContent className="flex flex-col gap-3">
               <div className="flex flex-wrap items-center gap-2">
@@ -96,6 +154,31 @@ export default function AnalysisResultPage() {
               </div>
               <p className="text-sm text-foreground">{clause.text}</p>
               <p className="text-sm text-muted-foreground">{clause.rationale}</p>
+
+              <div
+                role="group"
+                aria-label={`Decyzja: klauzula ${index + 1}`}
+                className="flex flex-wrap gap-2"
+              >
+                {DECISION_OPTIONS.map((decision) => {
+                  const isActive = clause.userDecision === decision;
+                  return (
+                    <Button
+                      key={decision}
+                      type="button"
+                      size="sm"
+                      variant={isActive ? "default" : "outline"}
+                      aria-pressed={isActive}
+                      onClick={() => handleDecide(clause.id, decision)}
+                    >
+                      {CLAUSE_DECISION_LABEL[decision]}
+                    </Button>
+                  );
+                })}
+              </div>
+              {decisionErrors[clause.id] && (
+                <p className="text-xs text-destructive">{decisionErrors[clause.id]}</p>
+              )}
 
               {(pointsByClauseId.get(clause.id) ?? []).map((point) => (
                 <div key={point.id} className="rounded-lg border border-border bg-muted/50 p-3">

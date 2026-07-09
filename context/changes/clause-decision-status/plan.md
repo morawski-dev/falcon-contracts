@@ -345,32 +345,32 @@ No schema change. `user_decision` already exists as a non-null column defaulting
 
 #### Automated
 
-- [x] 1.1 Backend compiles and the full suite passes: `cd backend && ./mvnw clean package`
-- [x] 1.2 Aggregate rule holds: `./mvnw test -Dtest=AnalysisDecideTest`
-- [x] 1.3 Isolation contract holds: `./mvnw test -Dtest=AnalysisIsolationTest`
-- [x] 1.4 Auth boundary and the PATCH CORS preflight hold: `./mvnw test -Dtest=AuthBoundaryMatrixTest`
-- [x] 1.5 Persistence round-trip, undo, and `400` on a bad enum hold: `./mvnw test -Dtest=AnalysisFlowTest`
+- [x] 1.1 Backend compiles and the full suite passes: `cd backend && ./mvnw clean package` — e66a101
+- [x] 1.2 Aggregate rule holds: `./mvnw test -Dtest=AnalysisDecideTest` — e66a101
+- [x] 1.3 Isolation contract holds: `./mvnw test -Dtest=AnalysisIsolationTest` — e66a101
+- [x] 1.4 Auth boundary and the PATCH CORS preflight hold: `./mvnw test -Dtest=AuthBoundaryMatrixTest` — e66a101
+- [x] 1.5 Persistence round-trip, undo, and `400` on a bad enum hold: `./mvnw test -Dtest=AnalysisFlowTest` — e66a101
 
 #### Manual
 
-- [x] 1.6 Setting a decision persists across a backend restart
-- [x] 1.7 A real browser `PATCH` from `http://localhost:3000` completes without a CORS error
+- [x] 1.6 Setting a decision persists across a backend restart — e66a101
+- [x] 1.7 A real browser `PATCH` from `http://localhost:3000` completes without a CORS error — e66a101
 
 ### Phase 2: Frontend decision control
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `cd frontend && pnpm lint`
-- [ ] 2.2 Production build passes: `cd frontend && pnpm build`
+- [x] 2.1 Lint passes: `cd frontend && pnpm lint`
+- [x] 2.2 Production build passes: `cd frontend && pnpm build`
 
 #### Manual
 
-- [ ] 2.3 Clicking a decision marks the clause immediately, with no visible round-trip
-- [ ] 2.4 The decision survives a page reload
-- [ ] 2.5 Clicking the active decision returns the clause to `Bez decyzji`
-- [ ] 2.6 With the backend stopped, a click rolls back only that clause and shows inline error copy
-- [ ] 2.7 The "To nie jest porada prawna" disclaimer is still visible
-- [ ] 2.8 Decision buttons are keyboard-operable and announce their labels
+- [x] 2.3 Clicking a decision marks the clause immediately, with no visible round-trip
+- [x] 2.4 The decision survives a page reload
+- [x] 2.5 Clicking the active decision returns the clause to `Bez decyzji`
+- [x] 2.6 With the backend stopped, a click rolls back only that clause and shows inline error copy
+- [x] 2.7 The "To nie jest porada prawna" disclaimer is still visible
+- [x] 2.8 Decision buttons are keyboard-operable and announce their labels
 
 ### Phase 3: End-to-end coverage
 

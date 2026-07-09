@@ -4,6 +4,13 @@ import type { RiskLevel, RiskType } from "@/lib/risk";
 
 export type ClauseDecision = "PENDING" | "ACCEPTED" | "TO_NEGOTIATE" | "REJECTED";
 
+export const CLAUSE_DECISION_LABEL: Record<ClauseDecision, string> = {
+  PENDING: "Bez decyzji",
+  ACCEPTED: "Akceptuję",
+  TO_NEGOTIATE: "Do negocjacji",
+  REJECTED: "Odrzucam",
+};
+
 export type AnalysisStatus = "DRAFT" | "ANALYZED" | "REVIEWED";
 
 export const ANALYSIS_STATUS_LABEL: Record<AnalysisStatus, string> = {
@@ -60,5 +67,18 @@ export async function getAnalysis(id: number | string): Promise<Analysis> {
 
 export async function getAnalyses(): Promise<AnalysisSummary[]> {
   const response = await apiFetch("/api/analyses");
+  return response.json();
+}
+
+export async function updateClauseDecision(
+  analysisId: number,
+  clauseId: number,
+  decision: ClauseDecision
+): Promise<Clause> {
+  await getCsrf();
+  const response = await apiFetch(`/api/analyses/${analysisId}/clauses/${clauseId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ decision }),
+  });
   return response.json();
 }
