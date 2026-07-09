@@ -17,8 +17,11 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Risk #1 (test-plan.md §2): ownership must not leak existence. AnalysisFlowTest already proves
@@ -80,6 +83,56 @@ class AnalysisIsolationTest {
 		assertThat(crossUserResult.getResponse().getContentAsString())
 				.as("no distinguishing signal in the response body either")
 				.isEqualTo(missingIdResult.getResponse().getContentAsString());
+	}
+
+	@Test
+	void crossUserPatchAndMissingIdPatchAreIndistinguishable() throws Exception {
+		User ownerA = persistUser("patch-owner-a@example.com");
+		User ownerB = persistUser("patch-owner-b@example.com");
+
+		Analysis analysis = new Analysis(ownerA.getId(), "Umowa A", "Tresc umowy...", AnalysisStatus.ANALYZED, Instant.now());
+		Clause clause = new Clause(analysis, "Automatyczne przedluzenie na 12 miesiecy.", RiskLevel.HIGH, RiskType.AUTO_RENEWAL,
+				"Dlugi okres wypowiedzenia utrudnia wyjscie z umowy.");
+		Analysis saved = analysisRepository.save(analysis);
+
+		MvcResult crossUserResult = mockMvc.perform(patch("/api/analyses/" + saved.getId() + "/clauses/" + clause.getId())
+						.with(csrf()).with(user(new AppUserDetails(ownerB)))
+						.contentType("application/json")
+						.content("{\"decision\":\"ACCEPTED\"}"))
+				.andReturn();
+		MvcResult missingIdResult = mockMvc.perform(
+						patch("/api/analyses/" + MISSING_ANALYSIS_ID + "/clauses/" + clause.getId())
+								.with(csrf()).with(user(new AppUserDetails(ownerB)))
+								.contentType("application/json")
+								.content("{\"decision\":\"ACCEPTED\"}"))
+				.andReturn();
+
+		assertThat(crossUserResult.getResponse().getStatus())
+				.as("wrong-owner id must be indistinguishable from a missing id")
+				.isEqualTo(404)
+				.isEqualTo(missingIdResult.getResponse().getStatus());
+		assertThat(crossUserResult.getResponse().getContentAsString())
+				.as("no distinguishing signal in the response body either")
+				.isEqualTo(missingIdResult.getResponse().getContentAsString());
+	}
+
+	@Test
+	void clauseFromAnotherAnalysisOfTheSameOwnerReturns404() throws Exception {
+		User owner = persistUser("same-owner@example.com");
+
+		Analysis analysisOne = new Analysis(owner.getId(), "Umowa 1", "Tresc umowy...", AnalysisStatus.ANALYZED, Instant.now());
+		new Clause(analysisOne, "Klauzula w umowie 1.", RiskLevel.HIGH, RiskType.AUTO_RENEWAL, "Uzasadnienie.");
+		Analysis savedOne = analysisRepository.save(analysisOne);
+
+		Analysis analysisTwo = new Analysis(owner.getId(), "Umowa 2", "Tresc umowy...", AnalysisStatus.ANALYZED, Instant.now());
+		Clause clauseTwo = new Clause(analysisTwo, "Klauzula w umowie 2.", RiskLevel.LOW, RiskType.OTHER, "Uzasadnienie.");
+		analysisRepository.save(analysisTwo);
+
+		mockMvc.perform(patch("/api/analyses/" + savedOne.getId() + "/clauses/" + clauseTwo.getId())
+						.with(csrf()).with(user(new AppUserDetails(owner)))
+						.contentType("application/json")
+						.content("{\"decision\":\"ACCEPTED\"}"))
+				.andExpect(status().isNotFound());
 	}
 
 	@Test

@@ -31,6 +31,7 @@ import java.util.List;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -182,6 +183,70 @@ class AnalysisFlowTest {
 
 		mockMvc.perform(get("/api/analyses/999999999").with(user(new AppUserDetails(owner))))
 				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void clauseDecisionPatchPersistsAndUndoClears() throws Exception {
+		User owner = persistUser("decision-owner@example.com");
+		CreateAnalysisRequest request = new CreateAnalysisRequest("Umowa najmu",
+				"Tresc umowy zawierajaca klauzule automatycznego przedluzenia...");
+
+		MvcResult createResult = mockMvc.perform(post("/api/analyses").with(csrf()).with(user(new AppUserDetails(owner)))
+						.contentType("application/json")
+						.content(objectMapper.writeValueAsString(request)))
+				.andExpect(status().isCreated())
+				.andReturn();
+
+		var createdBody = objectMapper.readTree(createResult.getResponse().getContentAsString());
+		long analysisId = createdBody.get("id").asLong();
+		long clauseId = createdBody.get("clauses").get(0).get("id").asLong();
+
+		mockMvc.perform(patch("/api/analyses/" + analysisId + "/clauses/" + clauseId)
+						.with(csrf()).with(user(new AppUserDetails(owner)))
+						.contentType("application/json")
+						.content("{\"decision\":\"TO_NEGOTIATE\"}"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.userDecision").value("TO_NEGOTIATE"));
+
+		// A separate GET, not the PATCH response body: proves the write was actually flushed,
+		// not merely mutated on the detached in-memory entity the PATCH response was mapped from.
+		mockMvc.perform(get("/api/analyses/" + analysisId).with(user(new AppUserDetails(owner))))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.clauses[0].userDecision").value("TO_NEGOTIATE"));
+
+		mockMvc.perform(patch("/api/analyses/" + analysisId + "/clauses/" + clauseId)
+						.with(csrf()).with(user(new AppUserDetails(owner)))
+						.contentType("application/json")
+						.content("{\"decision\":\"PENDING\"}"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.userDecision").value("PENDING"));
+
+		mockMvc.perform(get("/api/analyses/" + analysisId).with(user(new AppUserDetails(owner))))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.clauses[0].userDecision").value("PENDING"));
+	}
+
+	@Test
+	void clauseDecisionPatchWithUnparseableDecisionReturns400() throws Exception {
+		User owner = persistUser("bad-decision@example.com");
+		CreateAnalysisRequest request = new CreateAnalysisRequest("Umowa najmu",
+				"Tresc umowy zawierajaca klauzule automatycznego przedluzenia...");
+
+		MvcResult createResult = mockMvc.perform(post("/api/analyses").with(csrf()).with(user(new AppUserDetails(owner)))
+						.contentType("application/json")
+						.content(objectMapper.writeValueAsString(request)))
+				.andExpect(status().isCreated())
+				.andReturn();
+
+		var createdBody = objectMapper.readTree(createResult.getResponse().getContentAsString());
+		long analysisId = createdBody.get("id").asLong();
+		long clauseId = createdBody.get("clauses").get(0).get("id").asLong();
+
+		mockMvc.perform(patch("/api/analyses/" + analysisId + "/clauses/" + clauseId)
+						.with(csrf()).with(user(new AppUserDetails(owner)))
+						.contentType("application/json")
+						.content("{\"decision\":\"NOT_A_REAL_DECISION\"}"))
+				.andExpect(status().isBadRequest());
 	}
 
 	@TestConfiguration(proxyBeanMethods = false)

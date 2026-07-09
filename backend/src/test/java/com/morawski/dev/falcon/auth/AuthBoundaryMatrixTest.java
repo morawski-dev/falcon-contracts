@@ -12,9 +12,11 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.stream.Stream;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -56,6 +58,18 @@ class AuthBoundaryMatrixTest {
 	}
 
 	@Test
+	void anonymousPatchWithoutCsrfReturns403() throws Exception {
+		mockMvc.perform(patch("/api/analyses/1/clauses/1"))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	void anonymousPatchWithCsrfReturns401() throws Exception {
+		mockMvc.perform(patch("/api/analyses/1/clauses/1").with(csrf()))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
 	void anonymousCsrfEndpointIsReachable() throws Exception {
 		mockMvc.perform(get("/api/auth/csrf"))
 				.andExpect(status().isNoContent());
@@ -68,6 +82,15 @@ class AuthBoundaryMatrixTest {
 						.header("Access-Control-Request-Method", "POST"))
 				.andExpect(status().isOk())
 				.andExpect(header().exists("Access-Control-Allow-Origin"));
+	}
+
+	@Test
+	void corsPreflightPermitsPatch() throws Exception {
+		mockMvc.perform(options("/api/analyses/1/clauses/1")
+						.header("Origin", "http://localhost:3000")
+						.header("Access-Control-Request-Method", "PATCH"))
+				.andExpect(status().isOk())
+				.andExpect(header().string("Access-Control-Allow-Methods", containsString("PATCH")));
 	}
 
 	@Test

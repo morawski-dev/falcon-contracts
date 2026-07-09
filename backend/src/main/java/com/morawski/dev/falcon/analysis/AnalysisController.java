@@ -2,13 +2,16 @@ package com.morawski.dev.falcon.analysis;
 
 import com.morawski.dev.falcon.analysis.dto.AnalysisResponse;
 import com.morawski.dev.falcon.analysis.dto.AnalysisSummaryResponse;
+import com.morawski.dev.falcon.analysis.dto.ClauseResponse;
 import com.morawski.dev.falcon.analysis.dto.CreateAnalysisRequest;
+import com.morawski.dev.falcon.analysis.dto.UpdateClauseDecisionRequest;
 import com.morawski.dev.falcon.user.AppUserDetails;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -42,6 +45,12 @@ public class AnalysisController {
 	@GetMapping("/{id}")
 	public AnalysisResponse get(@PathVariable Long id, @AuthenticationPrincipal AppUserDetails principal) {
 		return analysisService.getAnalysis(id, principal.getId());
+	}
+
+	@PatchMapping("/{analysisId}/clauses/{clauseId}")
+	public ClauseResponse updateClauseDecision(@PathVariable Long analysisId, @PathVariable Long clauseId,
+			@Valid @RequestBody UpdateClauseDecisionRequest request, @AuthenticationPrincipal AppUserDetails principal) {
+		return analysisService.updateClauseDecision(analysisId, clauseId, request.decision(), principal.getId());
 	}
 
 }

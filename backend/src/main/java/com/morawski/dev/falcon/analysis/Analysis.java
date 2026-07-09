@@ -14,6 +14,7 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Entity
 @Table(name = "analyses")
@@ -86,6 +87,16 @@ public class Analysis {
 
 	public List<NegotiationPoint> getNegotiationPoints() {
 		return negotiationPoints;
+	}
+
+	public Clause decide(Long clauseId, ClauseDecision decision) {
+		for (Clause clause : clauses) {
+			if (clause.getId().equals(clauseId)) {
+				clause.setUserDecision(decision);
+				return clause;
+			}
+		}
+		throw new NoSuchElementException("No clause " + clauseId + " in analysis " + id);
 	}
 
 }

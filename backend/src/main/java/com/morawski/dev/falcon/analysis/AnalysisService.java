@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class AnalysisService {
@@ -76,6 +77,19 @@ public class AnalysisService {
 		return toResponse(analysis);
 	}
 
+	@Transactional
+	public ClauseResponse updateClauseDecision(Long analysisId, Long clauseId, ClauseDecision decision, Long ownerId) {
+		Analysis analysis = analysisRepository.findByIdAndOwnerId(analysisId, ownerId)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		try {
+			Clause updated = analysis.decide(clauseId, decision);
+			// dirty-checking flushes on commit; no save() call
+			return toClauseResponse(updated);
+		} catch (NoSuchElementException e) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+	}
+
 	private Long matchClauseId(Analysis analysis, String clauseText) {
 		if (clauseText == null || clauseText.isBlank()) {
 			return null;
@@ -95,14 +109,18 @@ public class AnalysisService {
 
 	private AnalysisResponse toResponse(Analysis analysis) {
 		List<ClauseResponse> clauses = analysis.getClauses().stream()
-				.map(c -> new ClauseResponse(c.getId(), c.getText(), c.getRiskLevel(), c.getRiskType(), c.getRationale(),
-						c.getUserDecision()))
+				.map(AnalysisService::toClauseResponse)
 				.toList();
 		List<NegotiationPointResponse> points = analysis.getNegotiationPoints().stream()
 				.map(p -> new NegotiationPointResponse(p.getId(), p.getClauseId(), p.getRecommendation(), p.getPriority()))
 				.toList();
 		return new AnalysisResponse(analysis.getId(), analysis.getTitle(), analysis.getStatus(), analysis.getCreatedAt(),
 				clauses, points);
+	}
+
+	private static ClauseResponse toClauseResponse(Clause c) {
+		return new ClauseResponse(c.getId(), c.getText(), c.getRiskLevel(), c.getRiskType(), c.getRationale(),
+				c.getUserDecision());
 	}
 
 }

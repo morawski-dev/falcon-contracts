@@ -79,4 +79,8 @@ public class Clause {
 		return userDecision;
 	}
 
+	void setUserDecision(ClauseDecision userDecision) {
+		this.userDecision = userDecision;
+	}
+
 }
