@@ -13,8 +13,13 @@ import java.util.Map;
  * AuthenticationException thrown by a manual authenticationManager.authenticate() call (login)
  * bypasses the security filter chain's ExceptionTranslationFilter, so it needs explicit mapping
  * here. The message is deliberately generic — it must not reveal whether the email exists.
+ *
+ * Scoped to AuthController: both handlers exist for exceptions AuthController itself raises
+ * (the manual authenticate() call, and the existsByEmail()/save() race in registration). Left
+ * unscoped, this advice would catch DataIntegrityViolationException from any controller in the
+ * app and misreport it as "Email already in use" — already a repeat bug (F-01, S-01 impl-reviews).
  */
-@RestControllerAdvice
+@RestControllerAdvice(assignableTypes = AuthController.class)
 public class AuthExceptionHandler {
 
 	@ExceptionHandler(AuthenticationException.class)

@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-negotiation-points-clause-fk-set-null
+      author: falcon
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: negotiation_points
+            constraintName: fk_negotiation_points_clause
+        - addForeignKeyConstraint:
+            baseTableName: negotiation_points
+            baseColumnNames: clause_id
+            referencedTableName: clauses
+            referencedColumnNames: id
+            constraintName: fk_negotiation_points_clause
+            onDelete: SET NULL
