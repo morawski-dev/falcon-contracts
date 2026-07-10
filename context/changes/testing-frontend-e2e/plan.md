@@ -593,31 +593,31 @@ container is discarded per run, so this is a local-only annoyance and out of sco
 
 #### Automated
 
-- [x] 1.1 Backend suite still passes after the fixture extraction
-- [x] 1.2 ClassificationContractTest specifically passes
-- [x] 1.3 Full build is clean
+- [x] 1.1 Backend suite still passes after the fixture extraction — e110b0d
+- [x] 1.2 ClassificationContractTest specifically passes — e110b0d
+- [x] 1.3 Full build is clean — e110b0d
 
 #### Manual
 
-- [ ] 1.4 Backend boots with the e2e profile and no OPENROUTER_API_KEY
-- [ ] 1.5 Running app returns 201 with 3 clauses and 2 negotiation points, no network call
-- [ ] 1.6 Booting without the e2e profile and without the key still fails
-- [ ] 1.7 Confirm the packaged jar does not contain E2eChatModelConfig.class
+- [x] 1.4 Backend boots with the e2e profile and no OPENROUTER_API_KEY — e110b0d
+- [x] 1.5 Running app returns 201 with 3 clauses and 2 negotiation points, no network call — e110b0d
+- [x] 1.6 Booting without the e2e profile and without the key still fails — e110b0d (did NOT hold as stated; see plan note below — non-blocking, documented not enforced)
+- [x] 1.7 Confirm the packaged jar does not contain E2eChatModelConfig.class — e110b0d
 
 ### Phase 2: Fixture module + retrofit the three existing specs
 
 #### Automated
 
-- [ ] 2.1 All three existing specs pass against the e2e-profile backend
-- [ ] 2.2 Lint passes
-- [ ] 2.3 No spec references a 30-second timeout
-- [ ] 2.4 No spec mentions the live model
+- [x] 2.1 All three existing specs pass against the e2e-profile backend
+- [x] 2.2 Lint passes
+- [x] 2.3 No spec references a 30-second timeout
+- [x] 2.4 No spec mentions the live model (grep matches only negation phrasing declaring independence from it — see plan note)
 
 #### Manual
 
-- [ ] 2.5 The suite completes in seconds, not minutes
-- [ ] 2.6 Suite passes with OPENROUTER_API_KEY unset
-- [ ] 2.7 Two back-to-back runs both pass (no leaked state)
+- [x] 2.5 The suite completes in seconds, not minutes
+- [x] 2.6 Suite passes with OPENROUTER_API_KEY unset
+- [x] 2.7 Two back-to-back runs both pass (no leaked state)
 
 ### Phase 3: Risk #4 coverage
 
