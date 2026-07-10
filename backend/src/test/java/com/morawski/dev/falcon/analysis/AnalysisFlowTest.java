@@ -101,7 +101,9 @@ class AnalysisFlowTest {
 		// Break the negotiation_points.clause_id cross-reference first — it's a plain column, not
 		// a JPA relationship, so Hibernate's own cascade-delete ordering for the Analysis's two
 		// sibling @OneToMany collections (clauses, negotiationPoints) can't be relied on to respect
-		// the DB-level FK (negotiation_points.clause_id → clauses.id has no cascade, by design).
+		// the DB-level FK. As of changeset 004, negotiation_points.clause_id → clauses.id cascades
+		// via ON DELETE SET NULL, so this manual nulling is now redundant, not required — left as-is
+		// to avoid touching passing test code for a migration that landed after it was written.
 		// Must be a SEPARATE, already-committed transaction from the deletes below: nulling and
 		// deleting the same rows in one flush lets Hibernate skip the now-pointless update.
 		TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);

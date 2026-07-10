@@ -142,7 +142,12 @@ export default function DashboardPage() {
                       <Badge variant="outline">{ANALYSIS_STATUS_LABEL[analysis.status]}</Badge>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button type="button" variant="destructive" size="sm">
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            aria-label={`Usuń analizę: ${analysis.title}`}
+                          >
                             Usuń
                           </Button>
                         </AlertDialogTrigger>

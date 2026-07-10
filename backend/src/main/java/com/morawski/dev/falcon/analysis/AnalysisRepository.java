@@ -22,8 +22,8 @@ public interface AnalysisRepository extends JpaRepository<Analysis, Long> {
 	// depends entirely on the DB-level ON DELETE CASCADE on clauses.analysis_id and
 	// negotiation_points.analysis_id (changeset 002). Do not "simplify" this to
 	// findByIdAndOwnerId(...).map(this::delete) — that reintroduces Hibernate's per-collection
-	// entity cascade, which deletes clauses before negotiation_points and can violate
-	// fk_negotiation_points_clause.
+	// entity cascade: loads the full aggregate, issues N+1 deletes, and depends on Hibernate
+	// emitting them in a safe order instead of one atomic statement.
 	@Modifying
 	@Query("delete from Analysis a where a.id = :id and a.ownerId = :ownerId")
 	int deleteOwned(@Param("id") Long id, @Param("ownerId") Long ownerId);

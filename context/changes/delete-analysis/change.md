@@ -1,7 +1,7 @@
 ---
 change_id: delete-analysis
 title: Delete analysis
-status: implemented
+status: impl_reviewed
 created: 2026-07-10
 updated: 2026-07-10
 archived_at: null
