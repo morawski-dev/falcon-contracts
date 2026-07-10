@@ -668,10 +668,10 @@ container is discarded per run, so this is a local-only annoyance and out of sco
 
 #### Automated
 
-- [x] 5.1 No TBD remains in test-plan §6.6
-- [x] 5.2 Full backend suite and e2e suite both green (backend: 59/59 local, just now; e2e: CI runs 29102214919 + 29102730314, both green on main's current code)
+- [x] 5.1 No TBD remains in test-plan §6.6 — 7b5f2f3
+- [x] 5.2 Full backend suite and e2e suite both green (backend: 59/59 local, just now; e2e: CI runs 29102214919 + 29102730314, both green on main's current code) — 7b5f2f3
 
 #### Manual
 
-- [x] 5.3 A fresh agent session names fixtures.ts, the e2e profile, and the locator rule (verified via a genuinely fresh Agent reading only test-plan.md + CLAUDE.md — correctly named all three, including the useTestClasspath trap)
-- [x] 5.4 §3 Phase 4's goal still reads correctly
+- [x] 5.3 A fresh agent session names fixtures.ts, the e2e profile, and the locator rule (verified via a genuinely fresh Agent reading only test-plan.md + CLAUDE.md — correctly named all three, including the useTestClasspath trap) — 7b5f2f3
+- [x] 5.4 §3 Phase 4's goal still reads correctly — 7b5f2f3
