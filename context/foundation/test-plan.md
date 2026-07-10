@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-07-05
+> Last updated: 2026-07-10
 
 ## 1. Strategy
 
@@ -93,9 +93,9 @@ orchestrator updates Status as artifacts appear on disk.
 | # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
 |---|------------|-----------------|---------------|------------|--------|---------------|
 | 1 | Auth boundary regression | Lock default-deny and the permit-list contract every new endpoint inherits (buildable now against F-01). | #5 | security-slice integration | complete | context/archive/2026-07-06-testing-auth-boundary-regression/ |
-| 2 | Classification pipeline + isolation | The load-bearing mocked-LLM e2e, converter robustness, and the first cross-user isolation test on `Analysis` (waits for S-01). | #1, #2, #3 | integration + e2e | complete | context/changes/testing-classification-pipeline-isolation/ |
-| 3 | Frontend / browser E2E | Paste→result flow, the "not legal advice" disclaimer guardrail, empty-input state, and the auth redirect (waits for the S-01 UI). | #4 | e2e (browser) | not started | — |
-| 4 | Quality-gate wiring | Lock the floor: per-edit hooks + pre-commit + CI (F-02) running the deterministic e2e (after the suites exist). | cross-cutting | gates | not started | — |
+| 2 | Classification pipeline + isolation | The load-bearing mocked-LLM e2e, converter robustness, and the first cross-user isolation test on `Analysis` (waits for S-01). | #1, #2, #3 | integration + e2e | complete | context/archive/2026-07-06-testing-classification-pipeline-isolation/ |
+| 3 | Frontend / browser E2E | Give the browser layer a deterministic backend (retrofit the three off-plan live-LLM specs), then cover Risk #4 — paste→result, disclaimer, empty-input state, auth redirect — and make the suite CI-runnable. | #4 (+ strategy debt, see note) | e2e (browser) | complete | context/changes/testing-frontend-e2e/ |
+| 4 | Quality-gate wiring | Lock the floor: per-edit hooks + pre-commit. Backend CI and the browser-e2e CI job both landed (F-02, §3 Phase 3); only local hooks remain. | cross-cutting | gates | not started | — |
 | 5 | Model-quality eval (optional) | Measure and regression-guard the real model on known-risky clauses; above-core. | #6 | offline eval | not started | — |
 
 **Status vocabulary** (fixed — parser literals):
@@ -109,11 +109,29 @@ orchestrator updates Status as artifacts appear on disk.
 | `implementing` | Progress section has at least one `[x]` and at least one `[ ]`. |
 | `complete` | Progress section is fully `[x]`. |
 
-Sequencing note: only Phase 1 is buildable today. Phases 2–3 are gated on the
-S-01 (`analyze-and-save-contract`) roadmap slice being implemented; Phase 4 is
-gated on the suites from Phases 1–3 existing; Phase 5 is optional / above-core.
-The rollout ships Phase 1 immediately, then blocks at Phase 2 until S-01 lands —
-that is the honest sequencing, not a defect.
+Sequencing note (reconciled 2026-07-10, after every roadmap slice reached
+`done`): the original gating — Phases 2–3 blocked on S-01 — is now spent. Phases
+1–3 shipped. Phase 4 is gated on Phase 3's suite existing (now true — only the
+local-hooks portion remains); Phase 5 is optional / above-core.
+
+**Strategy debt discovered during the 2026-07-10 verification pass, resolved the
+same day.** A browser E2E layer had landed *outside* this rollout, as a
+side-effect of the S-02/S-03/S-04 slices: `frontend/playwright.config.ts` plus
+three specs (`analysis-history`, `clause-decision`, `delete-analysis`), each
+seeding its fixture by driving the real paste→submit flow against the **live
+OpenRouter model** — contradicting §1 principle 1, Risk #4's response guidance,
+and `CLAUDE.md`'s rule that the real LLM is never called in tests. Phase 3
+retrofitted all three specs onto the `e2e` Spring profile (§4) before adding any
+new spec, so Risk #4's coverage was never built on top of the live-LLM seeding
+pattern. The suite is now deterministic, free, and CI-gated — see §6.6.
+
+Risk #4 is now **covered**: `frontend/e2e/{auth-redirect,disclaimer,
+analysis-input-validation,analysis-result}.spec.ts` assert the auth redirect, the
+disclaimer at both render sites, the empty-input and backend-failure explanatory
+states, and the paste→result flow itself (all clauses render, never downgraded,
+negotiation points linked selectively) — verified with real mutation tests
+(deleting either disclaimer, or downgrading a clause's risk level, turns the
+corresponding spec red).
 
 ## 4. Stack
 
@@ -126,7 +144,7 @@ The classic test base for this project. AI-native tools (if any) carry a
 | DB integration (backend) | Testcontainers (Postgres 18) | BOM-managed | via `TestcontainersConfiguration` (`@ServiceConnection`); integration tests do not use the Compose DB. |
 | HTTP / controller (backend) | MockMvc + `spring-security-test` | managed by Spring Boot 4.0.7 | deterministic auth-flow tests already use `.with(csrf())` and the `user(...)` post-processor. |
 | LLM mocking (backend) | Mockito (mock `ChatClient`) | bundled in `spring-boot-starter-test` | none wired yet — see §3 Phase 2. Mock at the model-response boundary; never call OpenRouter in tests. |
-| e2e (browser) | Playwright | not installed | none yet — see §3 Phase 3. Follow the project's E2E rules (role/label locators, no `waitForTimeout`, test independence). |
+| e2e (browser) | Playwright | `^1.61.1` (installed 2026-07-10) | `frontend/playwright.config.ts`, 7 specs under `frontend/e2e/`, run via `pnpm test:e2e`. Deterministic — seeds via the `e2e` Spring profile (§6.6), never the live LLM. `webServer` boots both backend and frontend itself if not already running. CI-gated (§5). Follow the project's E2E rules (role/label locators, no `waitForTimeout`, test independence). |
 | unit (frontend) | — | — | none; frontend risks are covered by browser E2E (§3 Phase 3), not a JS unit runner, per cost × signal. |
 | model-quality eval | offline harness (direct OpenRouter call) | n/a | none; optional — see §3 Phase 5. Runs out-of-band, never in the CI suite. |
 
@@ -142,15 +160,17 @@ The full set of gates that must pass before a change reaches production.
 "Required for §3 Phase N" means the gate is enforced once that rollout phase
 lands; before that, the gate is `planned`.
 
-| Gate | Where | Required? | Catches |
-|------|-------|-----------|---------|
-| lint (frontend eslint) + compile (backend) | local + CI | required | syntactic / type drift |
-| unit + integration (backend) | local + CI | required after §3 Phase 1 | logic regressions (auth boundary, then classification) |
-| deterministic mocked-LLM e2e | CI on PR | required after §3 Phase 2 | broken critical classification path; non-deterministic CI |
-| browser e2e on the paste→result flow | CI on PR | required after §3 Phase 3 | broken critical user path; dropped disclaimer guardrail |
-| per-edit hook (lint/format + scoped risk tests) | local (agent loop) | recommended after §3 Phase 4 | regressions at edit time on risk-area files |
-| pre-commit (staged lint + scoped risk tests) | local | recommended after §3 Phase 4 | what slipped past per-edit; manual edits |
-| model-quality eval | out-of-band | optional (§3 Phase 5) | prompt regressions that lower real-model risk detection |
+Wired-status column reconciled 2026-07-10 against `.github/workflows/ci.yml`.
+
+| Gate | Where | Required? | Wired? | Catches |
+|------|-------|-----------|--------|---------|
+| lint (frontend eslint) + compile (backend) | local + CI | required | yes — `pnpm lint`, `pnpm build`, `./mvnw clean package` | syntactic / type drift |
+| unit + integration (backend) | local + CI | required after §3 Phase 1 | yes — `./mvnw clean package` runs the full backend suite | logic regressions (auth boundary, then classification) |
+| deterministic mocked-LLM e2e | CI on PR | required after §3 Phase 2 | yes — `AnalysisFlowTest`, `ClassificationContractTest`, `ConverterRobustnessTest` run under `clean package` | broken critical classification path; non-deterministic CI |
+| browser e2e on the paste→result flow | CI on PR | required after §3 Phase 3 | **yes** — new `e2e` job in `.github/workflows/ci.yml`, path-filtered on `frontend/**` \|\| `backend/**`; verified live (run 29102214919, 102s; a deliberate failure in run 29102544025 correctly produced a red build with a downloadable trace artifact) | broken critical user path; dropped disclaimer guardrail |
+| per-edit hook (lint/format + scoped risk tests) | local (agent loop) | recommended after §3 Phase 4 | no — `.claude/settings.json` carries no hooks | regressions at edit time on risk-area files |
+| pre-commit (staged lint + scoped risk tests) | local | recommended after §3 Phase 4 | no | what slipped past per-edit; manual edits |
+| model-quality eval | out-of-band | optional (§3 Phase 5) | n/a — deliberately never a CI gate (§7) | prompt regressions that lower real-model risk detection |
 
 ## 6. Cookbook Patterns
 
@@ -191,11 +211,52 @@ relevant rollout phase ships; before that, it reads "TBD — see §3 Phase N."
 
 ### 6.6 Adding a browser E2E test
 
-- TBD — see §3 Phase 3. Pattern: drive the logged-in paste→result flow against a deterministic backend; assert the disclaimer is visible and the empty-input explanatory state renders; role/label locators only, wait on state not time, unique ids + cleanup per test.
+- **Location**: `frontend/e2e/<name>.spec.ts`. Shared setup lives in `frontend/e2e/fixtures.ts`.
+- **The deterministic backend**: boot with the `e2e` Spring profile —
+  `./mvnw spring-boot:run -Dspring-boot.run.profiles=e2e -Dspring-boot.run.additional-classpath-elements=target/test-classes`
+  (documented in `CLAUDE.md`). This serves `ClauseAnalysisFixtures.MULTI_CLAUSE_JSON`
+  (`backend/src/test/java/com/morawski/dev/falcon/analysis/E2eChatModelConfig.java`) for
+  every request — no OpenRouter call, no `OPENROUTER_API_KEY` needed. **Not**
+  `-Dspring-boot.run.useTestClasspath=true`: that flag is documented for this exact
+  purpose but does not add `target/test-classes` to the runtime classpath on this
+  project's spring-boot-maven-plugin 4.0.7 — verified by inspecting the forked process's
+  classpath argfile.
+- **Seeding vs. failure-state tests are two different mechanisms, by design.** To create
+  a real, persisted analysis, use `fixtures.ts`'s `registerFreshUser` + `seedAnalysis` —
+  they drive the real paste→submit UI against the `e2e`-profile backend, so persistence,
+  JPA, and the converter all stay real. To assert a *failure* state (e.g. a 502), use
+  `page.route()` interception instead — the deterministic stub always returns valid JSON
+  and can never produce a failure on its own. Never use interception to seed: it fakes
+  the entire backend, not just the model call, which would silently defeat any test whose
+  point is proving something persists.
+- **`getByRole('alert')` is ambiguous on `/analyses/[id]`** — both the disclaimer and the
+  not-found state render as an `Alert` (`role="alert"`). Disambiguate by title text
+  (`getByText("To nie jest porada prawna")` vs. `getByText("Nie znaleziono analizy")`).
+- **Never use positional/index locators on clauses.** `Analysis.clauses` has no
+  `@OrderBy`; persisted/returned order is not a guaranteed contract. Locate by the
+  risk-type-labeled accessible name instead (`getByRole('group', {name: /<RiskTypeLabel>/})`).
+- **No accessible landmark scopes a single clause's card.** The decision group and its
+  negotiation-point block are DOM siblings under a bare, roleless `<Card>`/`<CardContent>`.
+  Proving *which* clause shows *which* negotiation point (selective linkage) needs
+  `data-testid={\`clause-${clause.id}\`}` on that `CardContent`
+  (`frontend/src/app/analyses/[id]/page.tsx`) combined with `.filter({has: <role locator>})`
+  — the sanctioned `getByTestId` escape hatch for "accessibility attributes are
+  ambiguous."
+- **The native `required` attribute intercepts empty-field submits before React's handler
+  runs.** A genuinely empty textarea never reaches a client-side JS validation guard —
+  fill it with whitespace instead (satisfies `required`, still fails `.trim()`) to
+  actually exercise that code path.
+- Polish UI strings use a real ellipsis `…` (U+2026), not three dots — match exactly.
+- **Reference specs**: `analysis-result.spec.ts` (seeding + selective-linkage scoping),
+  `analysis-input-validation.spec.ts` (both failure-state mechanisms side by side),
+  `disclaimer.spec.ts` (both render sites, disambiguated).
+- **Run locally**: `cd frontend && pnpm test:e2e` (boots both servers itself via
+  `webServer` if not already running, or reuses them if they are).
 
 **Per-rollout-phase notes.** (Empty on first write. After each phase lands, `/10x-implement` appends a 2–3 line note here capturing anything surprising the phase taught — a shared fixture location, a converter quirk, an isolation-query gotcha.)
 
 - Phase 2 (classification pipeline + isolation, 2026-07-07): a shared mutable `@Primary ChatModel` fixture (a settable `content` field) lets a `@ParameterizedTest` drive per-case model replies within one Spring context — cheaper than a context-per-case mock. The `docs/clause-classification.md` §6 fixture's `negotiationPoints[].clauseText` is a truncated prefix of the clause `text`; `matchClauseId` links by exact-then-substring match, so linkage assertions must expect prefix-matching, not equality. `negotiation_points.clause_id` is a plain FK column (no JPA relationship) — tests that set it must null it in a first committed transaction before `deleteAll()`, or the FK constraint blocks cleanup.
+- Phase 3 (frontend / browser E2E, 2026-07-10): a `@TestConfiguration`-annotated stub `ChatModel` is silently *ignored* under a locally-run app (`@TestConfiguration` is meta-annotated `@TestComponent`, which the default component filter excludes) — the e2e stub must be a plain `@Configuration`, or the app boots, the profile looks active, and the real OpenRouter model still answers with no visible error. Separately, `-Dspring-boot.run.useTestClasspath=true` does not add `target/test-classes` to the runtime classpath on this project's plugin version; `-Dspring-boot.run.additional-classpath-elements=target/test-classes` (kebab-case property key) does. And even with a `@Primary` stub winning injection, the autoconfigured `OpenAiChatModel` bean is still *constructed*, so `spring.ai.openai.api-key` must still resolve to something at boot — a dedicated `application-e2e.properties` supplies a dummy value. Finally: request interception (`page.route()`) and profile-based seeding are not interchangeable — interception fakes the whole backend, so it is right for asserting a frontend failure-state reaction, and wrong for seeding anything a test needs to prove *persists*.
 
 ## 7. What We Deliberately Don't Test
 
@@ -210,8 +271,15 @@ contributors should respect these unless the underlying assumption changes.
 
 ## 8. Freshness Ledger
 
-- Strategy (§1–§5) last reviewed: 2026-07-05
-- Stack versions last verified: 2026-07-05
+- Strategy (§1–§2) last reviewed: 2026-07-05 — re-checked 2026-07-10 against the
+  completed roadmap; the risk map still holds and was **not** edited. Risk #4's
+  response guidance is what surfaced the live-LLM E2E defect, so it is vindicated,
+  not stale.
+- Rollout / stack / gates (§3–§5) last reconciled against disk: 2026-07-10
+  (all six roadmap slices `done`; Playwright found installed off-plan and
+  retrofitted onto the `e2e` profile; Phase 3 shipped and verified with two real
+  CI runs; browser-e2e gate now wired).
+- Stack versions last verified: 2026-07-10
 - AI-native tool references last verified: 2026-07-05
 
 Refresh (`/10x-test-plan --refresh`) when:

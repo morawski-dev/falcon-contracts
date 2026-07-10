@@ -652,26 +652,26 @@ container is discarded per run, so this is a local-only annoyance and out of sco
 
 #### Automated
 
-- [x] 4.1 pnpm test:e2e from a clean shell boots both servers and passes
-- [x] 4.2 pnpm test:e2e reuses already-running servers
-- [x] 4.3 The workflow parses
-- [ ] 4.4 A branch touching frontend/** triggers the e2e job and it passes
-- [ ] 4.5 A branch touching only context/** does not trigger the e2e job
+- [x] 4.1 pnpm test:e2e from a clean shell boots both servers and passes — ebdd4d2
+- [x] 4.2 pnpm test:e2e reuses already-running servers — ebdd4d2
+- [x] 4.3 The workflow parses — ebdd4d2
+- [x] 4.4 A branch touching frontend/** triggers the e2e job and it passes (live: run 29102214919, e2e job succeeded in 102s) — ebdd4d2
+- [x] 4.5 A branch touching only context/** does not trigger the e2e job (not directly tested — inferred from the identical, already-proven path-filter mechanism shared with the `backend`/`frontend` jobs; accepted without a dedicated push per user direction) — ebdd4d2
 
 #### Manual
 
-- [x] 4.6 CI run contains no OPENROUTER_API_KEY and no OpenRouter egress (static: grep confirms no reference in ci.yml; live egress not separately observed)
-- [ ] 4.7 A broken assertion produces a red build with a downloadable trace artifact
-- [ ] 4.8 e2e job wall-clock is under ~5 minutes
+- [x] 4.6 CI run contains no OPENROUTER_API_KEY and no OpenRouter egress (static: grep confirms no reference in ci.yml; the run succeeded using only the deterministic e2e-profile backend) — ebdd4d2
+- [x] 4.7 A broken assertion produces a red build with a downloadable trace artifact (live: run 29102544025 — "Run e2e suite" failed, "Upload Playwright report" ran and succeeded, playwright-report artifact confirmed present, 1.1MB; reverted in run 29102730314, green again) — ebdd4d2
+- [x] 4.8 e2e job wall-clock is under ~5 minutes (live: 102s) — ebdd4d2
 
 ### Phase 5: Close the rollout phase
 
 #### Automated
 
-- [ ] 5.1 No TBD remains in test-plan §6.6
-- [ ] 5.2 Full backend suite and e2e suite both green
+- [x] 5.1 No TBD remains in test-plan §6.6
+- [x] 5.2 Full backend suite and e2e suite both green (backend: 59/59 local, just now; e2e: CI runs 29102214919 + 29102730314, both green on main's current code)
 
 #### Manual
 
-- [ ] 5.3 A fresh agent session names fixtures.ts, the e2e profile, and the locator rule
-- [ ] 5.4 §3 Phase 4's goal still reads correctly
+- [x] 5.3 A fresh agent session names fixtures.ts, the e2e profile, and the locator rule (verified via a genuinely fresh Agent reading only test-plan.md + CLAUDE.md — correctly named all three, including the useTestClasspath trap)
+- [x] 5.4 §3 Phase 4's goal still reads correctly
