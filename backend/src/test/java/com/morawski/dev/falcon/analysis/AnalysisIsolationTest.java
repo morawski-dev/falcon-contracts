@@ -19,6 +19,7 @@ import java.time.Instant;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -114,6 +115,35 @@ class AnalysisIsolationTest {
 		assertThat(crossUserResult.getResponse().getContentAsString())
 				.as("no distinguishing signal in the response body either")
 				.isEqualTo(missingIdResult.getResponse().getContentAsString());
+	}
+
+	@Test
+	void crossUserDeleteAndMissingIdDeleteAreIndistinguishableAndOwnerSurvives() throws Exception {
+		User ownerA = persistUser("delete-owner-a@example.com");
+		User ownerB = persistUser("delete-owner-b@example.com");
+
+		Analysis analysis = new Analysis(ownerA.getId(), "Umowa A", "Tresc umowy...", AnalysisStatus.ANALYZED, Instant.now());
+		new Clause(analysis, "Automatyczne przedluzenie na 12 miesiecy.", RiskLevel.HIGH, RiskType.AUTO_RENEWAL,
+				"Dlugi okres wypowiedzenia utrudnia wyjscie z umowy.");
+		Analysis saved = analysisRepository.save(analysis);
+
+		MvcResult crossUserResult = mockMvc.perform(delete("/api/analyses/" + saved.getId())
+						.with(csrf()).with(user(new AppUserDetails(ownerB))))
+				.andReturn();
+		MvcResult missingIdResult = mockMvc.perform(delete("/api/analyses/" + MISSING_ANALYSIS_ID)
+						.with(csrf()).with(user(new AppUserDetails(ownerB))))
+				.andReturn();
+
+		assertThat(crossUserResult.getResponse().getStatus())
+				.as("wrong-owner id must be indistinguishable from a missing id")
+				.isEqualTo(404)
+				.isEqualTo(missingIdResult.getResponse().getStatus());
+		assertThat(crossUserResult.getResponse().getContentAsString())
+				.as("no distinguishing signal in the response body either")
+				.isEqualTo(missingIdResult.getResponse().getContentAsString());
+		assertThat(analysisRepository.findByIdAndOwnerId(saved.getId(), ownerA.getId()))
+				.as("owner B's delete attempt must not have deleted owner A's analysis")
+				.isPresent();
 	}
 
 	@Test

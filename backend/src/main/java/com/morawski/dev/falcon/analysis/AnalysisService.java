@@ -90,6 +90,14 @@ public class AnalysisService {
 		}
 	}
 
+	@Transactional
+	public void deleteAnalysis(Long id, Long ownerId) {
+		int deleted = analysisRepository.deleteOwned(id, ownerId);
+		if (deleted == 0) {
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+		}
+	}
+
 	private Long matchClauseId(Analysis analysis, String clauseText) {
 		if (clauseText == null || clauseText.isBlank()) {
 			return null;

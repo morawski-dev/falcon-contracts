@@ -393,30 +393,30 @@ No existing data is affected. No `negotiation_points.clause_id` values change on
 
 #### Automated
 
-- [x] 1.1 Backend builds and the full suite passes: `./mvnw clean package`
-- [x] 1.2 Spring context boots, proving the changeset is well-formed under `ddl-auto=validate`
-- [x] 1.3 `AuthFlowTest` still passes — duplicate-email 409, wrong-password 401 — proving the narrowed advice still covers `AuthController`
+- [x] 1.1 Backend builds and the full suite passes: `./mvnw clean package` — 0fb088f
+- [x] 1.2 Spring context boots, proving the changeset is well-formed under `ddl-auto=validate` — 0fb088f
+- [x] 1.3 `AuthFlowTest` still passes — duplicate-email 409, wrong-password 401 — proving the narrowed advice still covers `AuthController` — 0fb088f
 
 #### Manual
 
-- [x] 1.4 Postgres reports `ON DELETE SET NULL` on `fk_negotiation_points_clause`
-- [x] 1.5 Deleting a single `clauses` row nulls the referencing `negotiation_points.clause_id` instead of erroring
-- [x] 1.6 Hand-deleting a full `analyses` row in one statement empties all three tables (exercises SET NULL and both cascades together)
+- [x] 1.4 Postgres reports `ON DELETE SET NULL` on `fk_negotiation_points_clause` — 0fb088f
+- [x] 1.5 Deleting a single `clauses` row nulls the referencing `negotiation_points.clause_id` instead of erroring — 0fb088f
+- [x] 1.6 Hand-deleting a full `analyses` row in one statement empties all three tables (exercises SET NULL and both cascades together) — 0fb088f
 
 ### Phase 2: Backend delete endpoint
 
 #### Automated
 
-- [ ] 2.1 Backend builds and the full suite passes: `./mvnw clean package`
-- [ ] 2.2 Owner-delete test: 204, and zero rows in `analyses`, `clauses`, `negotiation_points` for that id
-- [ ] 2.3 Cross-user delete test: 404 byte-identical to a missing id, and the victim's analysis survives
-- [ ] 2.4 Anonymous `DELETE` returns 403 without CSRF and 401 with CSRF
-- [ ] 2.5 `OPTIONS` preflight test: `DELETE` appears in `Access-Control-Allow-Methods`
+- [x] 2.1 Backend builds and the full suite passes: `./mvnw clean package`
+- [x] 2.2 Owner-delete test: 204, and zero rows in `analyses`, `clauses`, `negotiation_points` for that id
+- [x] 2.3 Cross-user delete test: 404 byte-identical to a missing id, and the victim's analysis survives
+- [x] 2.4 Anonymous `DELETE` returns 403 without CSRF and 401 with CSRF
+- [x] 2.5 `OPTIONS` preflight test: `DELETE` appears in `Access-Control-Allow-Methods`
 
 #### Manual
 
-- [ ] 2.6 `curl -X DELETE` with a valid session returns 204; a repeat call returns 404
-- [ ] 2.7 Postgres shows no orphaned `clauses` or `negotiation_points` rows after the delete
+- [x] 2.6 `curl -X DELETE` with a valid session returns 204; a repeat call returns 404
+- [x] 2.7 Postgres shows no orphaned `clauses` or `negotiation_points` rows after the delete
 
 ### Phase 3: Frontend delete affordance
 

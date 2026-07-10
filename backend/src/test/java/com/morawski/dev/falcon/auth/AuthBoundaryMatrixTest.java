@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -70,6 +71,18 @@ class AuthBoundaryMatrixTest {
 	}
 
 	@Test
+	void anonymousDeleteWithoutCsrfReturns403() throws Exception {
+		mockMvc.perform(delete("/api/analyses/1"))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	void anonymousDeleteWithCsrfReturns401() throws Exception {
+		mockMvc.perform(delete("/api/analyses/1").with(csrf()))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
 	void anonymousCsrfEndpointIsReachable() throws Exception {
 		mockMvc.perform(get("/api/auth/csrf"))
 				.andExpect(status().isNoContent());
@@ -91,6 +104,18 @@ class AuthBoundaryMatrixTest {
 						.header("Access-Control-Request-Method", "PATCH"))
 				.andExpect(status().isOk())
 				.andExpect(header().string("Access-Control-Allow-Methods", containsString("PATCH")));
+	}
+
+	@Test
+	void corsPreflightPermitsDelete() throws Exception {
+		// MockMvc never sends an Origin header on ordinary requests, so nothing else in the suite
+		// can catch a missing verb in SecurityConfig's CORS allowed-methods list — this preflight
+		// assertion is the only automated guard on it.
+		mockMvc.perform(options("/api/analyses/1")
+						.header("Origin", "http://localhost:3000")
+						.header("Access-Control-Request-Method", "DELETE"))
+				.andExpect(status().isOk())
+				.andExpect(header().string("Access-Control-Allow-Methods", containsString("DELETE")));
 	}
 
 	@Test

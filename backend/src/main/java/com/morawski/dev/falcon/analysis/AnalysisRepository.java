@@ -2,6 +2,7 @@ package com.morawski.dev.falcon.analysis;
 
 import com.morawski.dev.falcon.analysis.dto.AnalysisSummaryResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -15,5 +16,16 @@ public interface AnalysisRepository extends JpaRepository<Analysis, Long> {
 	@Query("select new com.morawski.dev.falcon.analysis.dto.AnalysisSummaryResponse(a.id, a.title, a.status, a.createdAt) "
 			+ "from Analysis a where a.ownerId = :ownerId order by a.createdAt desc")
 	List<AnalysisSummaryResponse> findSummariesByOwnerId(@Param("ownerId") Long ownerId);
+
+	// A bulk JPQL delete never enters the persistence context, so Analysis's
+	// cascade = ALL / orphanRemoval never fires for this operation. Child cleanup instead
+	// depends entirely on the DB-level ON DELETE CASCADE on clauses.analysis_id and
+	// negotiation_points.analysis_id (changeset 002). Do not "simplify" this to
+	// findByIdAndOwnerId(...).map(this::delete) — that reintroduces Hibernate's per-collection
+	// entity cascade, which deletes clauses before negotiation_points and can violate
+	// fk_negotiation_points_clause.
+	@Modifying
+	@Query("delete from Analysis a where a.id = :id and a.ownerId = :ownerId")
+	int deleteOwned(@Param("id") Long id, @Param("ownerId") Long ownerId);
 
 }

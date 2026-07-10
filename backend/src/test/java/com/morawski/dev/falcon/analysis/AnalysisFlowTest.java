@@ -19,6 +19,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -28,8 +29,10 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.time.Instant;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -84,6 +87,14 @@ class AnalysisFlowTest {
 
 	@Autowired
 	private PlatformTransactionManager transactionManager;
+
+	// The cascade-regression guard for delete needs to count clause/negotiation_point rows for an
+	// analysis id AFTER that analysis is deleted — the entity graph is gone by then, so there is no
+	// analysis.getClauses() to walk. No ClauseRepository/NegotiationPointRepository exists (F-01's
+	// invariant keeps it that way), so this is the suite's one deliberate exception: raw SQL,
+	// test-scoped only.
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
 
 	@AfterEach
 	void cleanUp() {
@@ -182,6 +193,35 @@ class AnalysisFlowTest {
 		User owner = persistUser("unknown-id@example.com");
 
 		mockMvc.perform(get("/api/analyses/999999999").with(user(new AppUserDetails(owner))))
+				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void ownerDeleteEmptiesTheAggregate() throws Exception {
+		User owner = persistUser("delete-owner@example.com");
+		Analysis analysis = new Analysis(owner.getId(), "Umowa do usuniecia", "Tresc umowy...", AnalysisStatus.ANALYZED,
+				Instant.now());
+		Clause clause = new Clause(analysis, "Klauzula do usuniecia.", RiskLevel.HIGH, RiskType.AUTO_RENEWAL, "Uzasadnienie.");
+		Analysis savedWithClause = analysisRepository.saveAndFlush(analysis);
+		NegotiationPoint point = new NegotiationPoint(savedWithClause, "Rekomendacja.", RiskLevel.HIGH);
+		point.setClauseId(clause.getId());
+		Analysis saved = analysisRepository.save(savedWithClause);
+		long id = saved.getId();
+
+		mockMvc.perform(delete("/api/analyses/" + id).with(csrf()).with(user(new AppUserDetails(owner))))
+				.andExpect(status().isNoContent());
+
+		assertThat(jdbcTemplate.queryForObject("select count(*) from analyses where id = ?", Integer.class, id))
+				.as("analyses row must be gone")
+				.isZero();
+		assertThat(jdbcTemplate.queryForObject("select count(*) from clauses where analysis_id = ?", Integer.class, id))
+				.as("clauses rows must be gone")
+				.isZero();
+		assertThat(jdbcTemplate.queryForObject("select count(*) from negotiation_points where analysis_id = ?", Integer.class, id))
+				.as("negotiation_points rows must be gone")
+				.isZero();
+
+		mockMvc.perform(get("/api/analyses/" + id).with(user(new AppUserDetails(owner))))
 				.andExpect(status().isNotFound());
 	}
 

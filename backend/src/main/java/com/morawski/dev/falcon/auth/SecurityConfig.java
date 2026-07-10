@@ -72,7 +72,7 @@ public class SecurityConfig {
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-		configuration.setAllowedMethods(List.of("GET", "POST", "PATCH"));
+		configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE"));
 		configuration.setAllowedHeaders(List.of("Content-Type", "X-XSRF-TOKEN"));
 		configuration.setAllowCredentials(true);
 
