@@ -82,3 +82,8 @@ export async function updateClauseDecision(
   });
   return response.json();
 }
+
+export async function deleteAnalysis(id: number | string): Promise<void> {
+  await getCsrf();
+  await apiFetch(`/api/analyses/${id}`, { method: "DELETE" });
+}

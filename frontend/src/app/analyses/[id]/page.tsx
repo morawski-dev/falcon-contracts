@@ -4,13 +4,25 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardAction, CardContent } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   getAnalysis,
   updateClauseDecision,
+  deleteAnalysis,
   CLAUSE_DECISION_LABEL,
   type Analysis,
   type ClauseDecision,
@@ -28,6 +40,7 @@ export default function AnalysisResultPage() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [decisionErrors, setDecisionErrors] = useState<Record<number, string>>({});
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     getAnalysis(params.id)
@@ -89,6 +102,23 @@ export default function AnalysisResultPage() {
     }
   }
 
+  async function handleDeleteAnalysis() {
+    if (!analysis) {
+      return;
+    }
+    setDeleteError(null);
+    try {
+      await deleteAnalysis(analysis.id);
+      router.push("/dashboard");
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        router.push("/login");
+        return;
+      }
+      setDeleteError("Nie udało się usunąć analizy. Spróbuj ponownie.");
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex flex-1 justify-center p-6">
@@ -140,7 +170,33 @@ export default function AnalysisResultPage() {
         <Card>
           <CardHeader>
             <CardTitle>{analysis.title}</CardTitle>
+            <CardAction>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button type="button" variant="destructive" size="sm">
+                    Usuń
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Usunąć analizę?</AlertDialogTitle>
+                    <AlertDialogDescription>Tej operacji nie można cofnąć.</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                    <AlertDialogAction variant="destructive" onClick={handleDeleteAnalysis}>
+                      Usuń
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </CardAction>
           </CardHeader>
+          {deleteError && (
+            <CardContent>
+              <p className="text-xs text-destructive">{deleteError}</p>
+            </CardContent>
+          )}
         </Card>
 
         {analysis.clauses.map((clause, index) => (

@@ -7,8 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { me, logout, type CurrentUser } from "@/lib/auth";
-import { getAnalyses, ANALYSIS_STATUS_LABEL, type AnalysisSummary } from "@/lib/analyses";
+import { getAnalyses, deleteAnalysis, ANALYSIS_STATUS_LABEL, type AnalysisSummary } from "@/lib/analyses";
 import { ApiError } from "@/lib/api";
 
 function formatDate(iso: string): string {
@@ -21,6 +32,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [analyses, setAnalyses] = useState<AnalysisSummary[] | null>(null);
   const [analysesLoading, setAnalysesLoading] = useState(true);
+  const [deleteErrors, setDeleteErrors] = useState<Record<number, string>>({});
 
   useEffect(() => {
     me()
@@ -46,6 +58,27 @@ export default function DashboardPage() {
   async function handleLogout() {
     await logout();
     router.push("/login");
+  }
+
+  async function handleDelete(id: number) {
+    setDeleteErrors((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    try {
+      await deleteAnalysis(id);
+      setAnalyses((prev) => prev?.filter((a) => a.id !== id) ?? prev);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        router.push("/login");
+        return;
+      }
+      setDeleteErrors((prev) => ({
+        ...prev,
+        [id]: "Nie udało się usunąć analizy. Spróbuj ponownie.",
+      }));
+    }
   }
 
   if (loading) {
@@ -95,17 +128,44 @@ export default function DashboardPage() {
         {!analysesLoading && analyses !== null && analyses.length > 0 && (
           <div className="flex flex-col gap-3">
             {analyses.map((analysis) => (
-              <Link key={analysis.id} href={`/analyses/${analysis.id}`}>
-                <Card className="transition-colors hover:bg-muted/50">
-                  <CardContent className="flex items-center justify-between gap-4 p-4">
-                    <div className="flex flex-col gap-1">
+              <Card key={analysis.id} className="transition-colors hover:bg-muted/50">
+                <CardContent className="flex flex-col gap-2 p-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <Link
+                      href={`/analyses/${analysis.id}`}
+                      className="flex flex-1 flex-col gap-1 rounded outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                    >
                       <span className="text-sm font-medium text-foreground">{analysis.title}</span>
                       <span className="text-xs text-muted-foreground">{formatDate(analysis.createdAt)}</span>
+                    </Link>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{ANALYSIS_STATUS_LABEL[analysis.status]}</Badge>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button type="button" variant="destructive" size="sm">
+                            Usuń
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Usunąć analizę?</AlertDialogTitle>
+                            <AlertDialogDescription>Tej operacji nie można cofnąć.</AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                            <AlertDialogAction variant="destructive" onClick={() => handleDelete(analysis.id)}>
+                              Usuń
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
-                    <Badge variant="outline">{ANALYSIS_STATUS_LABEL[analysis.status]}</Badge>
-                  </CardContent>
-                </Card>
-              </Link>
+                  </div>
+                  {deleteErrors[analysis.id] && (
+                    <p className="text-xs text-destructive">{deleteErrors[analysis.id]}</p>
+                  )}
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}

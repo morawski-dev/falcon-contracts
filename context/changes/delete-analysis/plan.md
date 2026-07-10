@@ -407,33 +407,33 @@ No existing data is affected. No `negotiation_points.clause_id` values change on
 
 #### Automated
 
-- [x] 2.1 Backend builds and the full suite passes: `./mvnw clean package`
-- [x] 2.2 Owner-delete test: 204, and zero rows in `analyses`, `clauses`, `negotiation_points` for that id
-- [x] 2.3 Cross-user delete test: 404 byte-identical to a missing id, and the victim's analysis survives
-- [x] 2.4 Anonymous `DELETE` returns 403 without CSRF and 401 with CSRF
-- [x] 2.5 `OPTIONS` preflight test: `DELETE` appears in `Access-Control-Allow-Methods`
+- [x] 2.1 Backend builds and the full suite passes: `./mvnw clean package` — 67a8bd2
+- [x] 2.2 Owner-delete test: 204, and zero rows in `analyses`, `clauses`, `negotiation_points` for that id — 67a8bd2
+- [x] 2.3 Cross-user delete test: 404 byte-identical to a missing id, and the victim's analysis survives — 67a8bd2
+- [x] 2.4 Anonymous `DELETE` returns 403 without CSRF and 401 with CSRF — 67a8bd2
+- [x] 2.5 `OPTIONS` preflight test: `DELETE` appears in `Access-Control-Allow-Methods` — 67a8bd2
 
 #### Manual
 
-- [x] 2.6 `curl -X DELETE` with a valid session returns 204; a repeat call returns 404
-- [x] 2.7 Postgres shows no orphaned `clauses` or `negotiation_points` rows after the delete
+- [x] 2.6 `curl -X DELETE` with a valid session returns 204; a repeat call returns 404 — 67a8bd2
+- [x] 2.7 Postgres shows no orphaned `clauses` or `negotiation_points` rows after the delete — 67a8bd2
 
 ### Phase 3: Frontend delete affordance
 
 #### Automated
 
-- [ ] 3.1 Linting passes: `pnpm lint`
-- [ ] 3.2 Production build succeeds: `pnpm build`
-- [ ] 3.3 No new TypeScript errors in the build output
+- [x] 3.1 Linting passes: `pnpm lint`
+- [x] 3.2 Production build succeeds: `pnpm build`
+- [x] 3.3 No new TypeScript errors in the build output
 
 #### Manual
 
-- [ ] 3.4 Deleting from the dashboard removes the row without a page reload
-- [ ] 3.5 Deleting from the detail page redirects to `/dashboard` and the analysis is absent
-- [ ] 3.6 Clicking a row title still navigates; clicking `Usuń` does not
-- [ ] 3.7 Dialog dismisses with `Escape` and `Anuluj`; focus returns to the trigger
-- [ ] 3.8 Delete button is keyboard-reachable and not announced as nested inside the row link
-- [ ] 3.9 With the backend stopped, confirming a delete shows the inline Polish error
+- [x] 3.4 Deleting from the dashboard removes the row without a page reload
+- [x] 3.5 Deleting from the detail page redirects to `/dashboard` and the analysis is absent
+- [x] 3.6 Clicking a row title still navigates; clicking `Usuń` does not
+- [x] 3.7 Dialog dismisses with `Escape` and `Anuluj`; focus returns to the trigger
+- [x] 3.8 Delete button is keyboard-reachable and not announced as nested inside the row link
+- [x] 3.9 With the backend stopped, confirming a delete shows the inline Polish error
 
 ### Phase 4: End-to-end coverage and teardown
 
