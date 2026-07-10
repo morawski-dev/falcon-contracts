@@ -636,31 +636,31 @@ container is discarded per run, so this is a local-only annoyance and out of sco
 
 #### Automated
 
-- [x] 3.1 All seven specs pass
-- [x] 3.2 Lint passes
-- [x] 3.3 Suite passes with OPENROUTER_API_KEY unset
-- [x] 3.4 No CSS/XPath selectors introduced
-- [x] 3.5 No waitForTimeout introduced
+- [x] 3.1 All seven specs pass — 926c4e9
+- [x] 3.2 Lint passes — 926c4e9
+- [x] 3.3 Suite passes with OPENROUTER_API_KEY unset — 926c4e9
+- [x] 3.4 No CSS/XPath selectors introduced — 926c4e9
+- [x] 3.5 No waitForTimeout introduced — 926c4e9
 
 #### Manual
 
-- [x] 3.6 Deleting the disclaimer from analyses/[id]/page.tsx turns disclaimer.spec.ts red
-- [x] 3.7 Deleting the disclaimer from analyses/new/page.tsx also turns it red
-- [x] 3.8 Downgrading the fixture's AUTO_RENEWAL clause to LOW turns analysis-result.spec.ts red
+- [x] 3.6 Deleting the disclaimer from analyses/[id]/page.tsx turns disclaimer.spec.ts red — 926c4e9
+- [x] 3.7 Deleting the disclaimer from analyses/new/page.tsx also turns it red — 926c4e9
+- [x] 3.8 Downgrading the fixture's AUTO_RENEWAL clause to LOW turns analysis-result.spec.ts red — 926c4e9
 
 ### Phase 4: CI-runnable harness
 
 #### Automated
 
-- [ ] 4.1 pnpm test:e2e from a clean shell boots both servers and passes
-- [ ] 4.2 pnpm test:e2e reuses already-running servers
-- [ ] 4.3 The workflow parses
+- [x] 4.1 pnpm test:e2e from a clean shell boots both servers and passes
+- [x] 4.2 pnpm test:e2e reuses already-running servers
+- [x] 4.3 The workflow parses
 - [ ] 4.4 A branch touching frontend/** triggers the e2e job and it passes
 - [ ] 4.5 A branch touching only context/** does not trigger the e2e job
 
 #### Manual
 
-- [ ] 4.6 CI run contains no OPENROUTER_API_KEY and no OpenRouter egress
+- [x] 4.6 CI run contains no OPENROUTER_API_KEY and no OpenRouter egress (static: grep confirms no reference in ci.yml; live egress not separately observed)
 - [ ] 4.7 A broken assertion produces a red build with a downloadable trace artifact
 - [ ] 4.8 e2e job wall-clock is under ~5 minutes
 
