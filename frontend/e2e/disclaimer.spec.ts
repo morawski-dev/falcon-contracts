@@ -26,4 +26,14 @@ test("disclaimer is visible on the input page and on a saved result", async ({ p
   await page.waitForURL(/\/analyses\/\d+$/);
 
   await expect(page.getByText("To nie jest porada prawna")).toBeVisible();
+
+  // Cleanup: delete the analysis this test created so re-runs don't accumulate rows.
+  await page.goto("/dashboard");
+  const historyRow = page.getByRole("link", { name: new RegExp(title) });
+  await expect(historyRow).toBeVisible();
+  await page.getByRole("button", { name: "Usuń" }).click();
+  const confirmDialog = page.getByRole("alertdialog");
+  await expect(confirmDialog).toBeVisible();
+  await confirmDialog.getByRole("button", { name: "Usuń" }).click();
+  await expect(historyRow).not.toBeVisible();
 });
