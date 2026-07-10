@@ -3,7 +3,7 @@ project: Falcon
 version: 1
 status: draft
 created: 2026-07-04
-updated: 2026-07-09
+updated: 2026-07-10
 prd_version: 1
 main_goal: market-feedback
 top_blocker: capacity
@@ -33,7 +33,7 @@ Falcon turns a pasted contract into a per-clause risk breakdown: an LLM splits t
 | S-01  | analyze-and-save-contract | paste a contract → saved, classified breakdown + negotiation points | F-01      | US-01, FR-002, FR-003, FR-004, FR-005, FR-006, FR-008 | done |
 | S-02  | clause-decision-status   | mark each clause accepted / to-negotiate / rejected             | S-01          | FR-007                                          | done |
 | S-03  | analysis-history         | see and reopen their past analyses                              | S-01          | FR-009                                          | done     |
-| S-04  | delete-analysis          | delete one of their saved analyses                              | S-01          | FR-010                                          | proposed |
+| S-04  | delete-analysis          | delete one of their saved analyses                              | S-01          | FR-010                                          | done |
 | F-02  | ci-build-and-test        | (foundation) build + tests run automatically on every push      | —             | test-determinism guardrail                      | done |
 
 ## Streams
@@ -136,7 +136,7 @@ Foundations below assume these are present and do NOT re-scaffold them. The them
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Destructive and privacy-relevant — deletion must be owner-scoped and hard to trigger by accident. Depends only on a saved analysis (S-01); the delete action can be surfaced from both the analysis view and the history list (S-03), but neither is a hard prerequisite — kept parallelizable on purpose so the solo builder always has independent work.
-- **Status:** proposed
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -180,3 +180,4 @@ None. The PRD closed with zero open questions and a clean shape cross-check, and
 - **F-02: (foundation) both apps build and their tests — including S-01's deterministic, mocked-LLM e2e — run automatically on every push, giving a stable pass/fail signal in CI.** — Archived 2026-07-06 → `context/archive/2026-07-06-ci-build-and-test/`. Lesson: —.
 - **S-03: a returning user can see a list of their past analyses and reopen any one — strictly owner-scoped. This is the Secondary success signal (usable cross-session return).** — Archived 2026-07-08 → `context/archive/2026-07-08-analysis-history/`. Lesson: —.
 - **S-02: on a saved analysis, a user can set each clause's decision status (accepted / to-negotiate / rejected) and have it persist — turning the read-only breakdown into a working negotiation checklist, the user's decision surface.** — Archived 2026-07-09 → `context/archive/2026-07-09-clause-decision-status/`. Lesson: —.
+- **S-04: a user can delete one of their saved analyses — the MVP's user-driven retention/privacy mechanism (analyses persist until the owner removes them; no automatic expiry).** — Archived 2026-07-10 → `context/archive/2026-07-10-delete-analysis/`. Lesson: —.
