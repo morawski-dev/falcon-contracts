@@ -1,10 +1,10 @@
 ---
 change_id: testing-frontend-e2e
 title: Deterministic browser E2E + disclaimer guardrail coverage
-status: impl_reviewed
+status: archived
 created: 2026-07-10
 updated: 2026-07-10
-archived_at: null
+archived_at: 2026-07-10T15:41:46Z
 ---
 
 ## Notes
