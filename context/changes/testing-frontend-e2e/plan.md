@@ -360,6 +360,19 @@ The route must be scoped so it does not swallow `GET /api/analyses` (the dashboa
 
 **File**: `frontend/e2e/analysis-result.spec.ts` (new)
 
+**Also required — discovered during implementation**: `frontend/src/app/analyses/[id]/page.tsx`
+needs one attribute added: `data-testid={\`clause-${clause.id}\`}` on each clause's
+`CardContent`. Reason: the decision group (`role="group"`, risk-type-labeled) and the
+negotiation-point block (`"Punkt do negocjacji"`) are **siblings** under a bare, roleless
+`<Card>`/`<CardContent>` div (confirmed via `card.tsx` — plain `<div data-slot="card">`,
+no ARIA role). With no accessible landmark scoping a clause's card as a unit, only
+*aggregate* facts are provable via role/label/text alone ("2 negotiation-point blocks
+exist somewhere") — not *which clause* each one renders under, so a linkage-swap
+regression (AUTO_RENEWAL's card showing PENALTY's point) would slip past. This is exactly
+the case CLAUDE.md's locator rule carves out `getByTestId` for ("only when accessibility
+attributes are ambiguous"). Confirmed with the user before making this production-code
+addition.
+
 **Intent**: The core of Risk #4 — prove the result view renders a real breakdown, not an
 empty shell. This is the only assertion needing a genuinely saved analysis.
 
@@ -608,32 +621,32 @@ container is discarded per run, so this is a local-only annoyance and out of sco
 
 #### Automated
 
-- [x] 2.1 All three existing specs pass against the e2e-profile backend
-- [x] 2.2 Lint passes
-- [x] 2.3 No spec references a 30-second timeout
-- [x] 2.4 No spec mentions the live model (grep matches only negation phrasing declaring independence from it — see plan note)
+- [x] 2.1 All three existing specs pass against the e2e-profile backend — 30789fe
+- [x] 2.2 Lint passes — 30789fe
+- [x] 2.3 No spec references a 30-second timeout — 30789fe
+- [x] 2.4 No spec mentions the live model (grep matches only negation phrasing declaring independence from it — see plan note) — 30789fe
 
 #### Manual
 
-- [x] 2.5 The suite completes in seconds, not minutes
-- [x] 2.6 Suite passes with OPENROUTER_API_KEY unset
-- [x] 2.7 Two back-to-back runs both pass (no leaked state)
+- [x] 2.5 The suite completes in seconds, not minutes — 30789fe
+- [x] 2.6 Suite passes with OPENROUTER_API_KEY unset — 30789fe
+- [x] 2.7 Two back-to-back runs both pass (no leaked state) — 30789fe
 
 ### Phase 3: Risk #4 coverage
 
 #### Automated
 
-- [ ] 3.1 All seven specs pass
-- [ ] 3.2 Lint passes
-- [ ] 3.3 Suite passes with OPENROUTER_API_KEY unset
-- [ ] 3.4 No CSS/XPath selectors introduced
-- [ ] 3.5 No waitForTimeout introduced
+- [x] 3.1 All seven specs pass
+- [x] 3.2 Lint passes
+- [x] 3.3 Suite passes with OPENROUTER_API_KEY unset
+- [x] 3.4 No CSS/XPath selectors introduced
+- [x] 3.5 No waitForTimeout introduced
 
 #### Manual
 
-- [ ] 3.6 Deleting the disclaimer from analyses/[id]/page.tsx turns disclaimer.spec.ts red
-- [ ] 3.7 Deleting the disclaimer from analyses/new/page.tsx also turns it red
-- [ ] 3.8 Downgrading the fixture's AUTO_RENEWAL clause to LOW turns analysis-result.spec.ts red
+- [x] 3.6 Deleting the disclaimer from analyses/[id]/page.tsx turns disclaimer.spec.ts red
+- [x] 3.7 Deleting the disclaimer from analyses/new/page.tsx also turns it red
+- [x] 3.8 Downgrading the fixture's AUTO_RENEWAL clause to LOW turns analysis-result.spec.ts red
 
 ### Phase 4: CI-runnable harness
 

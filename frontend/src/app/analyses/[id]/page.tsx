@@ -201,7 +201,7 @@ export default function AnalysisResultPage() {
 
         {analysis.clauses.map((clause, index) => (
           <Card key={clause.id}>
-            <CardContent className="flex flex-col gap-3">
+            <CardContent className="flex flex-col gap-3" data-testid={`clause-${clause.id}`}>
               <div className="flex flex-wrap items-center gap-2">
                 <Badge className={RISK_LEVEL_BADGE_CLASS[clause.riskLevel]}>
                   {RISK_LEVEL_LABEL[clause.riskLevel]}
