@@ -439,10 +439,10 @@ No existing data is affected. No `negotiation_points.clause_id` values change on
 
 #### Automated
 
-- [x] 4.1 Linting passes: `pnpm lint`
-- [x] 4.2 E2E suite passes against a running stack: `pnpm test:e2e`
+- [x] 4.1 Linting passes: `pnpm lint` — d404294
+- [x] 4.2 E2E suite passes against a running stack: `pnpm test:e2e` — d404294
 
 #### Manual
 
-- [x] 4.3 Re-running the full e2e suite twice leaves no accumulating analyses
-- [x] 4.4 The delete spec fails, rather than silently passing, if the confirmation dialog is removed
+- [x] 4.3 Re-running the full e2e suite twice leaves no accumulating analyses — d404294
+- [x] 4.4 The delete spec fails, rather than silently passing, if the confirmation dialog is removed — d404294
