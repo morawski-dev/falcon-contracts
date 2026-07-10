@@ -14,9 +14,9 @@ import { test, expect } from "@playwright/test";
 // type (a persisted, content-derived value) precisely so it can be found reliably
 // regardless of where the clause currently renders.
 //
-// Known limitation: S-04 (delete-analysis) is not built yet, so there is no UI path
-// to remove the user/analysis this test creates. Each run uses a fresh,
-// timestamp-suffixed account so re-runs and parallel runs never collide.
+// Each run uses a fresh, timestamp-suffixed account so re-runs and parallel runs never
+// collide. Cleanup deletes the analysis this test created (S-04); the account itself
+// still leaks — account deletion is not in the MVP.
 //
 // Known limitation: the risk-type locator assumes CONTRACT_TEXT below produces a
 // unique risk type per clause. If a second clause is ever added that also classifies
@@ -67,4 +67,14 @@ test("clause decision persists across a reload", async ({ page }) => {
   await expect(
     autoRenewalDecisionsAfterReload.getByRole("button", { name: "Do negocjacji", pressed: true })
   ).toBeVisible();
+
+  // Cleanup: delete the analysis this test created so re-runs don't accumulate rows.
+  await page.goto("/dashboard");
+  const historyRow = page.getByRole("link", { name: new RegExp(title) });
+  await expect(historyRow).toBeVisible();
+  await page.getByRole("button", { name: "Usuń" }).click();
+  const confirmDialog = page.getByRole("alertdialog");
+  await expect(confirmDialog).toBeVisible();
+  await confirmDialog.getByRole("button", { name: "Usuń" }).click();
+  await expect(historyRow).not.toBeVisible();
 });

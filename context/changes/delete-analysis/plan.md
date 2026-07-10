@@ -422,27 +422,27 @@ No existing data is affected. No `negotiation_points.clause_id` values change on
 
 #### Automated
 
-- [x] 3.1 Linting passes: `pnpm lint`
-- [x] 3.2 Production build succeeds: `pnpm build`
-- [x] 3.3 No new TypeScript errors in the build output
+- [x] 3.1 Linting passes: `pnpm lint` — 85695c9
+- [x] 3.2 Production build succeeds: `pnpm build` — 85695c9
+- [x] 3.3 No new TypeScript errors in the build output — 85695c9
 
 #### Manual
 
-- [x] 3.4 Deleting from the dashboard removes the row without a page reload
-- [x] 3.5 Deleting from the detail page redirects to `/dashboard` and the analysis is absent
-- [x] 3.6 Clicking a row title still navigates; clicking `Usuń` does not
-- [x] 3.7 Dialog dismisses with `Escape` and `Anuluj`; focus returns to the trigger
-- [x] 3.8 Delete button is keyboard-reachable and not announced as nested inside the row link
-- [x] 3.9 With the backend stopped, confirming a delete shows the inline Polish error
+- [x] 3.4 Deleting from the dashboard removes the row without a page reload — 85695c9
+- [x] 3.5 Deleting from the detail page redirects to `/dashboard` and the analysis is absent — 85695c9
+- [x] 3.6 Clicking a row title still navigates; clicking `Usuń` does not — 85695c9
+- [x] 3.7 Dialog dismisses with `Escape` and `Anuluj`; focus returns to the trigger — 85695c9
+- [x] 3.8 Delete button is keyboard-reachable and not announced as nested inside the row link — 85695c9
+- [x] 3.9 With the backend stopped, confirming a delete shows the inline Polish error — 85695c9
 
 ### Phase 4: End-to-end coverage and teardown
 
 #### Automated
 
-- [ ] 4.1 Linting passes: `pnpm lint`
-- [ ] 4.2 E2E suite passes against a running stack: `pnpm test:e2e`
+- [x] 4.1 Linting passes: `pnpm lint`
+- [x] 4.2 E2E suite passes against a running stack: `pnpm test:e2e`
 
 #### Manual
 
-- [ ] 4.3 Re-running the full e2e suite twice leaves no accumulating analyses
-- [ ] 4.4 The delete spec fails, rather than silently passing, if the confirmation dialog is removed
+- [x] 4.3 Re-running the full e2e suite twice leaves no accumulating analyses
+- [x] 4.4 The delete spec fails, rather than silently passing, if the confirmation dialog is removed
