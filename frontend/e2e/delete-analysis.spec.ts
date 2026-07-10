@@ -30,7 +30,21 @@ test("deleting an analysis removes it from the dashboard and its URL becomes unr
   await expect(confirmDialog).toBeVisible();
   // Once the dialog is open, a second "Usuń" button exists (the confirm action) —
   // scope to the alertdialog landmark rather than relying on render order or position.
-  await confirmDialog.getByRole("button", { name: "Usuń" }).click();
+  //
+  // Wait for the DELETE response itself, not just the row disappearing from the DOM.
+  // handleDelete only calls setAnalyses() after `await deleteAnalysis(id)` resolves, so
+  // in principle the row can't vanish before the request completes — but the dialog's
+  // close transition can make the row transiently invisible for unrelated reasons, which
+  // is enough for `not.toBeVisible()` to resolve early. A network trace confirmed this:
+  // the DELETE request was still in flight (recorded status -1, i.e. cancelled) when a
+  // subsequent page.goto() destroyed the page context before the request landed. Waiting
+  // on the response itself removes the race at its source.
+  await Promise.all([
+    page.waitForResponse(
+      (res) => res.request().method() === "DELETE" && res.url().includes("/api/analyses/") && res.status() === 204
+    ),
+    confirmDialog.getByRole("button", { name: "Usuń" }).click(),
+  ]);
 
   await expect(historyRow).not.toBeVisible();
 

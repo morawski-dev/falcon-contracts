@@ -53,9 +53,18 @@ export default defineConfig({
         : undefined,
     },
     {
-      // In CI the frontend job's build step already ran `pnpm build`; `pnpm start` serves
-      // that production build. Locally, `pnpm dev` is what a developer already has open.
-      command: isCI ? "pnpm start" : "pnpm dev",
+      // `next.config.ts` sets `output: "standalone"` (a small Docker image is the point —
+      // see that file's comment). `pnpm start` (`next start`) is NOT compatible with
+      // standalone output: Next.js prints its own warning and the server limps along
+      // without `public/` or `.next/static/`, since the standalone `server.js` does not
+      // copy those by default (they're meant to be served by a CDN). That produced a real,
+      // intermittent CI failure — a page needing a JS chunk that 404s only sometimes wins
+      // the race with a hard navigation. The correct standalone entry point is
+      // `node .next/standalone/server.js`, and `public`/`.next/static` must be copied in
+      // first. Locally, `pnpm dev` is what a developer already has open.
+      command: isCI
+        ? "cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/ && node .next/standalone/server.js"
+        : "pnpm dev",
       url: "http://localhost:3000",
       reuseExistingServer: !isCI,
       timeout: 60_000,
