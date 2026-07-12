@@ -427,14 +427,14 @@ No data migration. The `git mv` into `(app)/` changes no URL, so no redirects or
 
 #### Automated
 
-- [x] 4.1 Full suite green: `cd frontend && pnpm test:e2e` (13/13)
-- [x] 4.2 No CSS/XPath locators in `frontend/e2e/`
-- [x] 4.3 No `waitForTimeout` in `frontend/e2e/`
-- [x] 4.4 No `getByText("Falcon")` in `frontend/e2e/`
-- [x] 4.5 The `.first()` disambiguation on "Nowa analiza" is gone
-- [x] 4.6 Lint passes: `cd frontend && pnpm lint`
+- [x] 4.1 Full suite green: `cd frontend && pnpm test:e2e` (13/13) — 0fbd3ca
+- [x] 4.2 No CSS/XPath locators in `frontend/e2e/` — 0fbd3ca
+- [x] 4.3 No `waitForTimeout` in `frontend/e2e/` — 0fbd3ca
+- [x] 4.4 No `getByText("Falcon")` in `frontend/e2e/` — 0fbd3ca
+- [x] 4.5 The `.first()` disambiguation on "Nowa analiza" is gone — 0fbd3ca
+- [x] 4.6 Lint passes: `cd frontend && pnpm lint` — 0fbd3ca
 
 #### Manual
 
-- [x] 4.7 Suite runs 3× consecutively with no flakes
-- [x] 4.8 The regression guard actually guards — removing the header CTA turns test 3 red
+- [x] 4.7 Suite runs 3× consecutively with no flakes — 0fbd3ca
+- [x] 4.8 The regression guard actually guards — removing the header CTA turns test 3 red — 0fbd3ca
