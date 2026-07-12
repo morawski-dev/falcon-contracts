@@ -9,8 +9,11 @@ export function AppHeader() {
   const router = useRouter();
 
   async function handleLogout() {
-    await logout();
-    router.push("/login");
+    try {
+      await logout();
+    } finally {
+      router.push("/login");
+    }
   }
 
   return (
