@@ -35,7 +35,7 @@ Falcon turns a pasted contract into a per-clause risk breakdown: an LLM splits t
 | S-03  | analysis-history         | see and reopen their past analyses                              | S-01          | FR-009                                          | done     |
 | S-04  | delete-analysis          | delete one of their saved analyses                              | S-01          | FR-010                                          | done |
 | F-02  | ci-build-and-test        | (foundation) build + tests run automatically on every push      | —             | test-determinism guardrail                      | done |
-| S-05  | app-navigation-header    | return to their dashboard from any authenticated screen         | S-01, S-03    | — (navigation gap; supports US-01, FR-009)      | todo |
+| S-05  | app-navigation-header    | return to their dashboard from any authenticated screen         | S-01, S-03    | — (navigation gap; supports US-01, FR-009)      | done |
 
 ## Streams
 
@@ -150,7 +150,7 @@ Foundations below assume these are present and do NOT re-scaffold them. The them
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Thin and frontend-only. Today there is no authenticated shell — only the root `app/layout.tsx` — so the header cannot simply go there or it would leak onto `(auth)/login` and `(auth)/register`; the slice must introduce an authenticated route-group layout (e.g. `(app)/layout.tsx`) covering `dashboard` + `analyses/*` without regressing the existing per-screen layouts. The dashboard's current "Falcon" + logout card becomes redundant and should shed that chrome rather than grow a second logout. Keep the header minimal (wordmark → dashboard, logout); resist a full nav menu, breadcrumbs, or a sidebar (YAGNI). Do not touch the backend.
-- **Status:** todo
+- **Status:** done
 
 ## Backlog Handoff
 
@@ -196,3 +196,4 @@ None. The PRD closed with zero open questions and a clean shape cross-check, and
 - **S-03: a returning user can see a list of their past analyses and reopen any one — strictly owner-scoped. This is the Secondary success signal (usable cross-session return).** — Archived 2026-07-08 → `context/archive/2026-07-08-analysis-history/`. Lesson: —.
 - **S-02: on a saved analysis, a user can set each clause's decision status (accepted / to-negotiate / rejected) and have it persist — turning the read-only breakdown into a working negotiation checklist, the user's decision surface.** — Archived 2026-07-09 → `context/archive/2026-07-09-clause-decision-status/`. Lesson: —.
 - **S-04: a user can delete one of their saved analyses — the MVP's user-driven retention/privacy mechanism (analyses persist until the owner removes them; no automatic expiry).** — Archived 2026-07-10 → `context/archive/2026-07-10-delete-analysis/`. Lesson: —.
+- **S-05: from any authenticated screen — the new-analysis form (`/analyses/new`) and the analysis result (`/analyses/[id]`) — a logged-in user can navigate back to their dashboard via a **persistent app header**: the "Falcon" wordmark links to `/dashboard`, and logout is consolidated into that header. The header is present on every authenticated screen and absent from login/register. Purely client-side navigation — no new endpoint, no schema change, no change to the owner-scoping invariant.** — Archived 2026-07-12 → `context/archive/2026-07-12-app-navigation-header/`. Lesson: —.
