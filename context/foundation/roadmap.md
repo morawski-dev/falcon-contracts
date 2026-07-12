@@ -3,7 +3,7 @@ project: Falcon
 version: 1
 status: draft
 created: 2026-07-04
-updated: 2026-07-10
+updated: 2026-07-12
 prd_version: 1
 main_goal: market-feedback
 top_blocker: capacity
@@ -35,6 +35,7 @@ Falcon turns a pasted contract into a per-clause risk breakdown: an LLM splits t
 | S-03  | analysis-history         | see and reopen their past analyses                              | S-01          | FR-009                                          | done     |
 | S-04  | delete-analysis          | delete one of their saved analyses                              | S-01          | FR-010                                          | done |
 | F-02  | ci-build-and-test        | (foundation) build + tests run automatically on every push      | —             | test-determinism guardrail                      | done |
+| S-05  | app-navigation-header    | return to their dashboard from any authenticated screen         | S-01, S-03    | — (navigation gap; supports US-01, FR-009)      | todo |
 
 ## Streams
 
@@ -45,6 +46,7 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 | A      | Core value chain     | `F-01` → `S-01` → `S-02`       | The north-star path: auth gate → prove the domain rule → turn the report into a working checklist. |
 | B      | History & retention  | `S-03` / `S-04`                | Both branch from `S-01` (join Stream A at `S-01`); the Secondary signal + user-driven deletion. |
 | C      | Verification         | `F-02`                         | Standalone enabler; automates S-01's deterministic e2e test and guards S-02–S-04. Built alongside Stream B. |
+| D      | Navigation & shell   | `S-05`                         | Joins after Streams A and B land — the screens must exist before the shell that connects them. Closes the one-directional navigation graph the first four slices left behind. |
 
 ## Baseline
 
@@ -138,6 +140,18 @@ Foundations below assume these are present and do NOT re-scaffold them. The them
 - **Risk:** Destructive and privacy-relevant — deletion must be owner-scoped and hard to trigger by accident. Depends only on a saved analysis (S-01); the delete action can be surfaced from both the analysis view and the history list (S-03), but neither is a hard prerequisite — kept parallelizable on purpose so the solo builder always has independent work.
 - **Status:** done
 
+### S-05: Return to the dashboard from anywhere
+
+- **Outcome:** from any authenticated screen — the new-analysis form (`/analyses/new`) and the analysis result (`/analyses/[id]`) — a logged-in user can navigate back to their dashboard via a **persistent app header**: the "Falcon" wordmark links to `/dashboard`, and logout is consolidated into that header. The header is present on every authenticated screen and absent from login/register. Purely client-side navigation — no new endpoint, no schema change, no change to the owner-scoping invariant.
+- **Change ID:** app-navigation-header
+- **PRD refs:** none direct — a navigation/usability gap found during rollout, not an unbuilt requirement. It serves the unstated movement assumption behind US-01 (paste → read the result → carry on) and FR-009 (history is only *reachable* if something links back to it).
+- **Prerequisites:** S-01 (the analyze screens must exist), S-03 (the dashboard hub must exist) — both `done`, so this is immediately ready for `/10x-plan`.
+- **Parallel with:** —
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** Thin and frontend-only. Today there is no authenticated shell — only the root `app/layout.tsx` — so the header cannot simply go there or it would leak onto `(auth)/login` and `(auth)/register`; the slice must introduce an authenticated route-group layout (e.g. `(app)/layout.tsx`) covering `dashboard` + `analyses/*` without regressing the existing per-screen layouts. The dashboard's current "Falcon" + logout card becomes redundant and should shed that chrome rather than grow a second logout. Keep the header minimal (wordmark → dashboard, logout); resist a full nav menu, breadcrumbs, or a sidebar (YAGNI). Do not touch the backend.
+- **Status:** todo
+
 ## Backlog Handoff
 
 | Roadmap ID | Change ID                | Suggested issue title                                                    | Ready for `/10x-plan` | Notes |
@@ -148,6 +162,7 @@ Foundations below assume these are present and do NOT re-scaffold them. The them
 | S-03       | analysis-history         | Show a user their history of past analyses                               | no                    | After S-01 |
 | S-04       | delete-analysis          | Let users delete a saved analysis                                        | no                    | After S-01 |
 | F-02       | ci-build-and-test        | CI: build both apps and run tests (incl. the deterministic e2e) on push  | no                    | Build alongside S-02 per the delivery order |
+| S-05       | app-navigation-header    | Let users return to the dashboard from any authenticated screen          | yes                   | Run `/10x-plan app-navigation-header` — prerequisites (S-01, S-03) are done |
 
 ## Open Roadmap Questions
 
