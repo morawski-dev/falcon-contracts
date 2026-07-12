@@ -395,33 +395,33 @@ No data migration. The `git mv` into `(app)/` changes no URL, so no redirects or
 
 #### Automated
 
-- [x] 2.1 Lint passes: `cd frontend && pnpm lint`
-- [x] 2.2 Build + typecheck passes: `cd frontend && pnpm build`
-- [x] 2.3 Existing E2E suite passes: `cd frontend && pnpm test:e2e` (7/8; the one failure is the pre-existing environment issue documented in `change.md`, unrelated to this phase)
-- [x] 2.4 No dead `me` / `logout` / `CurrentUser` / `handleLogout` / `user` / `setUser` / `loading` / `setLoading` references remain in the dashboard
+- [x] 2.1 Lint passes: `cd frontend && pnpm lint` — 1639969
+- [x] 2.2 Build + typecheck passes: `cd frontend && pnpm build` — 1639969
+- [x] 2.3 Existing E2E suite passes: `cd frontend && pnpm test:e2e` (7/8; the one failure is the pre-existing environment issue documented in `change.md`, unrelated to this phase) — 1639969
+- [x] 2.4 No dead `me` / `logout` / `CurrentUser` / `handleLogout` / `user` / `setUser` / `loading` / `setLoading` references remain in the dashboard — 1639969
 
 #### Manual
 
-- [x] 2.5 "Nowa analiza" appears exactly once on the dashboard in every state; "Wyloguj" exactly once
-- [x] 2.6 The dashboard issues no `GET /api/auth/me` — only `GET /api/analyses`
-- [x] 2.7 Logging out from the dashboard still lands on `/login`
-- [x] 2.8 A user with saved analyses can start a new one
-- [x] 2.9 An empty dashboard still explains itself, and the header's CTA is the way forward
+- [x] 2.5 "Nowa analiza" appears exactly once on the dashboard in every state; "Wyloguj" exactly once — 1639969
+- [x] 2.6 The dashboard issues no `GET /api/auth/me` — only `GET /api/analyses` — 1639969
+- [x] 2.7 Logging out from the dashboard still lands on `/login` — 1639969
+- [x] 2.8 A user with saved analyses can start a new one — 1639969
+- [x] 2.9 An empty dashboard still explains itself, and the header's CTA is the way forward — 1639969
 
 ### Phase 3: Fix the root dead end
 
 #### Automated
 
-- [ ] 3.1 Lint passes: `cd frontend && pnpm lint`
-- [ ] 3.2 Build + typecheck passes: `cd frontend && pnpm build`
-- [ ] 3.3 Existing E2E suite passes: `cd frontend && pnpm test:e2e`
-- [ ] 3.4 No create-next-app remnants remain in `frontend/src`
-- [ ] 3.5 The orphaned template SVGs are deleted from `frontend/public/`
+- [x] 3.1 Lint passes: `cd frontend && pnpm lint`
+- [x] 3.2 Build + typecheck passes: `cd frontend && pnpm build`
+- [x] 3.3 Existing E2E suite passes: `cd frontend && pnpm test:e2e` (7/8; the one failure is the pre-existing environment issue documented in `change.md`, unrelated to this phase)
+- [x] 3.4 No create-next-app remnants remain in `frontend/src`
+- [x] 3.5 The orphaned template SVGs are deleted from `frontend/public/`
 
 #### Manual
 
-- [ ] 3.6 `/` lands on `/dashboard` when logged in, `/login` when logged out
-- [ ] 3.7 The browser tab reads "Falcon"
+- [x] 3.6 `/` lands on `/dashboard` when logged in, `/login` when logged out
+- [x] 3.7 The browser tab reads "Falcon"
 
 ### Phase 4: E2E coverage
 
