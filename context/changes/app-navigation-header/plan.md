@@ -378,35 +378,35 @@ No data migration. The `git mv` into `(app)/` changes no URL, so no redirects or
 
 #### Automated
 
-- [x] 1.1 Lint passes: `cd frontend && pnpm lint`
-- [x] 1.2 Build + typecheck passes: `cd frontend && pnpm build`
-- [x] 1.3 Existing E2E suite still passes unchanged: `cd frontend && pnpm test:e2e`
-- [x] 1.4 The route group exists and the old directories are gone (`test -d "(app)/dashboard"` etc.)
-- [x] 1.5 `frontend/src/proxy.ts` is unmodified
+- [x] 1.1 Lint passes: `cd frontend && pnpm lint` — dae5e54
+- [x] 1.2 Build + typecheck passes: `cd frontend && pnpm build` — dae5e54
+- [x] 1.3 Existing E2E suite still passes unchanged: `cd frontend && pnpm test:e2e` — dae5e54
+- [x] 1.4 The route group exists and the old directories are gone (`test -d "(app)/dashboard"` etc.) — dae5e54
+- [x] 1.5 `frontend/src/proxy.ts` is unmodified — dae5e54
 
 #### Manual
 
-- [x] 1.6 Header renders on the three authenticated routes; absent on `/login` and `/register`
-- [x] 1.7 Header sticks to the top while scrolling a long analysis
-- [x] 1.8 The delete-confirm AlertDialog overlays the header, and the header does not jump horizontally when it opens
-- [x] 1.9 `/analyses/new` still vertically centers its card — the height chain is intact
+- [x] 1.6 Header renders on the three authenticated routes; absent on `/login` and `/register` — dae5e54
+- [x] 1.7 Header sticks to the top while scrolling a long analysis — dae5e54
+- [x] 1.8 The delete-confirm AlertDialog overlays the header, and the header does not jump horizontally when it opens — dae5e54
+- [x] 1.9 `/analyses/new` still vertically centers its card — the height chain is intact — dae5e54
 
 ### Phase 2: Shed the dashboard's redundant chrome
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `cd frontend && pnpm lint`
-- [ ] 2.2 Build + typecheck passes: `cd frontend && pnpm build`
-- [ ] 2.3 Existing E2E suite passes: `cd frontend && pnpm test:e2e`
-- [ ] 2.4 No dead `me` / `logout` / `CurrentUser` / `handleLogout` / `user` / `setUser` / `loading` / `setLoading` references remain in the dashboard
+- [x] 2.1 Lint passes: `cd frontend && pnpm lint`
+- [x] 2.2 Build + typecheck passes: `cd frontend && pnpm build`
+- [x] 2.3 Existing E2E suite passes: `cd frontend && pnpm test:e2e` (7/8; the one failure is the pre-existing environment issue documented in `change.md`, unrelated to this phase)
+- [x] 2.4 No dead `me` / `logout` / `CurrentUser` / `handleLogout` / `user` / `setUser` / `loading` / `setLoading` references remain in the dashboard
 
 #### Manual
 
-- [ ] 2.5 "Nowa analiza" appears exactly once on the dashboard in every state; "Wyloguj" exactly once
-- [ ] 2.6 The dashboard issues no `GET /api/auth/me` — only `GET /api/analyses`
-- [ ] 2.7 Logging out from the dashboard still lands on `/login`
-- [ ] 2.8 A user with saved analyses can start a new one
-- [ ] 2.9 An empty dashboard still explains itself, and the header's CTA is the way forward
+- [x] 2.5 "Nowa analiza" appears exactly once on the dashboard in every state; "Wyloguj" exactly once
+- [x] 2.6 The dashboard issues no `GET /api/auth/me` — only `GET /api/analyses`
+- [x] 2.7 Logging out from the dashboard still lands on `/login`
+- [x] 2.8 A user with saved analyses can start a new one
+- [x] 2.9 An empty dashboard still explains itself, and the header's CTA is the way forward
 
 ### Phase 3: Fix the root dead end
 

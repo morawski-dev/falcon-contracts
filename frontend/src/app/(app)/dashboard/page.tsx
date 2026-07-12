@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -18,7 +18,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { me, logout, type CurrentUser } from "@/lib/auth";
 import { getAnalyses, deleteAnalysis, ANALYSIS_STATUS_LABEL, type AnalysisSummary } from "@/lib/analyses";
 import { ApiError } from "@/lib/api";
 
@@ -28,23 +27,11 @@ function formatDate(iso: string): string {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<CurrentUser | null>(null);
-  const [loading, setLoading] = useState(true);
   const [analyses, setAnalyses] = useState<AnalysisSummary[] | null>(null);
   const [analysesLoading, setAnalysesLoading] = useState(true);
   const [deleteErrors, setDeleteErrors] = useState<Record<number, string>>({});
 
   useEffect(() => {
-    me()
-      .then(setUser)
-      .catch(() => router.push("/login"))
-      .finally(() => setLoading(false));
-  }, [router]);
-
-  useEffect(() => {
-    if (!user) {
-      return;
-    }
     getAnalyses()
       .then(setAnalyses)
       .catch((err) => {
@@ -53,12 +40,7 @@ export default function DashboardPage() {
         }
       })
       .finally(() => setAnalysesLoading(false));
-  }, [user, router]);
-
-  async function handleLogout() {
-    await logout();
-    router.push("/login");
-  }
+  }, [router]);
 
   async function handleDelete(id: number) {
     setDeleteErrors((prev) => {
@@ -81,30 +63,9 @@ export default function DashboardPage() {
     }
   }
 
-  if (loading) {
-    return null;
-  }
-
   return (
     <div className="flex flex-1 justify-center p-6">
       <div className="flex w-full max-w-2xl flex-col gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Falcon</CardTitle>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            <p className="text-sm text-foreground">Zalogowano jako {user?.email}</p>
-            <div className="flex gap-2">
-              <Button asChild>
-                <Link href="/analyses/new">Nowa analiza</Link>
-              </Button>
-              <Button variant="outline" onClick={handleLogout}>
-                Wyloguj
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
         {analysesLoading && (
           <div className="flex flex-col gap-3">
             <Skeleton className="h-20 w-full" />
@@ -118,9 +79,6 @@ export default function DashboardPage() {
               <p className="text-sm text-muted-foreground">
                 Nie masz jeszcze żadnych analiz. Wklej treść umowy, aby rozpocząć pierwszą.
               </p>
-              <Button asChild>
-                <Link href="/analyses/new">Nowa analiza</Link>
-              </Button>
             </CardContent>
           </Card>
         )}
