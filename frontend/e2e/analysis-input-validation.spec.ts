@@ -29,7 +29,7 @@ test("empty contract text shows an explanatory state without contacting the serv
     await route.continue();
   });
 
-  await page.getByRole("link", { name: "Nowa analiza" }).first().click();
+  await page.getByRole("link", { name: "Nowa analiza" }).click();
   await page.waitForURL("/analyses/new");
   await page.getByLabel("Tytuł").fill("Pusta umowa");
   // Whitespace-only: satisfies the native `required` attribute so the browser lets the
@@ -57,7 +57,7 @@ test("a backend failure shows an explanatory state, not a silent empty result", 
     await route.continue();
   });
 
-  await page.getByRole("link", { name: "Nowa analiza" }).first().click();
+  await page.getByRole("link", { name: "Nowa analiza" }).click();
   await page.waitForURL("/analyses/new");
   await page.getByLabel("Tytuł").fill("Umowa z bledem");
   await page.getByLabel("Treść umowy").fill(CONTRACT_TEXT);

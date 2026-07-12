@@ -412,29 +412,29 @@ No data migration. The `git mv` into `(app)/` changes no URL, so no redirects or
 
 #### Automated
 
-- [x] 3.1 Lint passes: `cd frontend && pnpm lint`
-- [x] 3.2 Build + typecheck passes: `cd frontend && pnpm build`
-- [x] 3.3 Existing E2E suite passes: `cd frontend && pnpm test:e2e` (7/8; the one failure is the pre-existing environment issue documented in `change.md`, unrelated to this phase)
-- [x] 3.4 No create-next-app remnants remain in `frontend/src`
-- [x] 3.5 The orphaned template SVGs are deleted from `frontend/public/`
+- [x] 3.1 Lint passes: `cd frontend && pnpm lint` — b38197a
+- [x] 3.2 Build + typecheck passes: `cd frontend && pnpm build` — b38197a
+- [x] 3.3 Existing E2E suite passes: `cd frontend && pnpm test:e2e` (7/8; the one failure is the pre-existing environment issue documented in `change.md`, unrelated to this phase) — b38197a
+- [x] 3.4 No create-next-app remnants remain in `frontend/src` — b38197a
+- [x] 3.5 The orphaned template SVGs are deleted from `frontend/public/` — b38197a
 
 #### Manual
 
-- [x] 3.6 `/` lands on `/dashboard` when logged in, `/login` when logged out
-- [x] 3.7 The browser tab reads "Falcon"
+- [x] 3.6 `/` lands on `/dashboard` when logged in, `/login` when logged out — b38197a
+- [x] 3.7 The browser tab reads "Falcon" — b38197a
 
 ### Phase 4: E2E coverage
 
 #### Automated
 
-- [ ] 4.1 Full suite green: `cd frontend && pnpm test:e2e`
-- [ ] 4.2 No CSS/XPath locators in `frontend/e2e/`
-- [ ] 4.3 No `waitForTimeout` in `frontend/e2e/`
-- [ ] 4.4 No `getByText("Falcon")` in `frontend/e2e/`
-- [ ] 4.5 The `.first()` disambiguation on "Nowa analiza" is gone
-- [ ] 4.6 Lint passes: `cd frontend && pnpm lint`
+- [x] 4.1 Full suite green: `cd frontend && pnpm test:e2e` (13/13)
+- [x] 4.2 No CSS/XPath locators in `frontend/e2e/`
+- [x] 4.3 No `waitForTimeout` in `frontend/e2e/`
+- [x] 4.4 No `getByText("Falcon")` in `frontend/e2e/`
+- [x] 4.5 The `.first()` disambiguation on "Nowa analiza" is gone
+- [x] 4.6 Lint passes: `cd frontend && pnpm lint`
 
 #### Manual
 
-- [ ] 4.7 Suite runs 3× consecutively with no flakes
-- [ ] 4.8 The regression guard actually guards — removing the header CTA turns test 3 red
+- [x] 4.7 Suite runs 3× consecutively with no flakes
+- [x] 4.8 The regression guard actually guards — removing the header CTA turns test 3 red

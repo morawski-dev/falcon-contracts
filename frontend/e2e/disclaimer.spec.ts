@@ -13,7 +13,7 @@ import { registerFreshUser, CONTRACT_TEXT } from "./fixtures";
 test("disclaimer is visible on the input page and on a saved result", async ({ page }) => {
   await registerFreshUser(page, "disclaimer");
 
-  await page.getByRole("link", { name: "Nowa analiza" }).first().click();
+  await page.getByRole("link", { name: "Nowa analiza" }).click();
   await page.waitForURL("/analyses/new");
   await expect(
     page.getByText("Falcon dostarcza analizę pomocniczą, a nie poradę prawną.")

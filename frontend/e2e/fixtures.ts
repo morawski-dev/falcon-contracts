@@ -33,9 +33,7 @@ export async function registerFreshUser(page: Page, prefix: string) {
  * second — no live-LLM wait, so no extended timeout is needed here.
  */
 export async function seedAnalysis(page: Page, title: string) {
-  // "Nowa analiza" appears twice on a fresh account's dashboard: the header action
-  // and the empty-state CTA. Both point at the same route, so either is fine to click.
-  await page.getByRole("link", { name: "Nowa analiza" }).first().click();
+  await page.getByRole("link", { name: "Nowa analiza" }).click();
   await page.waitForURL("/analyses/new");
   await page.getByLabel("Tytuł").fill(title);
   await page.getByLabel("Treść umowy").fill(CONTRACT_TEXT);
