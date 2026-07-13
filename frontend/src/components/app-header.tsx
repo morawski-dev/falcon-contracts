@@ -26,6 +26,9 @@ export function AppHeader() {
           Falcon
         </Link>
         <div className="flex items-center gap-2">
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/dashboard">Moje analizy</Link>
+          </Button>
           <Button asChild size="sm">
             <Link href="/analyses/new">Nowa analiza</Link>
           </Button>

@@ -35,6 +35,26 @@ test("clicking the wordmark from a saved analysis returns to the dashboard", asy
   await expect(historyRow).not.toBeVisible();
 });
 
+test("the header's \"Moje analizy\" link returns to the dashboard from a saved analysis", async ({
+  page,
+}) => {
+  await registerFreshUser(page, "header-moje-analizy");
+  const title = `E2E Moje Analizy ${Date.now()}`;
+  await seedAnalysis(page, title);
+
+  await page.getByRole("link", { name: "Moje analizy" }).click();
+  await page.waitForURL("**/dashboard");
+
+  // Cleanup: delete the analysis this test created.
+  const historyRow = page.getByRole("link", { name: new RegExp(title) });
+  await expect(historyRow).toBeVisible();
+  await page.getByRole("button", { name: "Usuń" }).click();
+  const confirmDialog = page.getByRole("alertdialog");
+  await expect(confirmDialog).toBeVisible();
+  await confirmDialog.getByRole("button", { name: "Usuń" }).click();
+  await expect(historyRow).not.toBeVisible();
+});
+
 test("the header's \"Nowa analiza\" starts a new analysis from a populated dashboard", async ({
   page,
 }) => {
@@ -88,9 +108,11 @@ test("logging out from the header ends the session", async ({ page }) => {
 test("the header does not appear on the login or register pages", async ({ page }) => {
   await page.goto("/login");
   await expect(page.getByRole("link", { name: "Falcon" })).not.toBeVisible();
+  await expect(page.getByRole("link", { name: "Moje analizy" })).not.toBeVisible();
   await expect(page.getByRole("button", { name: "Wyloguj" })).not.toBeVisible();
 
   await page.goto("/register");
   await expect(page.getByRole("link", { name: "Falcon" })).not.toBeVisible();
+  await expect(page.getByRole("link", { name: "Moje analizy" })).not.toBeVisible();
   await expect(page.getByRole("button", { name: "Wyloguj" })).not.toBeVisible();
 });
