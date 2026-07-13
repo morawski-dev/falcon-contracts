@@ -43,6 +43,7 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   --color-stamp: var(--stamp);
+  --color-ink: var(--ink);
   --color-risk-low-mark: var(--risk-low-mark);
   --color-risk-low-ink: var(--risk-low-ink);
   --color-risk-medium-mark: var(--risk-medium-mark);
@@ -94,8 +95,10 @@
      H4/S59/L35) — a brighter, more saturated crimson (H350/S74/L44) so the
      Usuń button and a HIGH-risk clause read as visibly different inks. */
   --destructive: #c41e3a;
-  --border: oklch(0.85 0.01 90);
-  --input: oklch(0.85 0.01 90);
+  /* 0.85 originally computed to 1.46:1 vs paper — far under the 3:1 WCAG
+     1.4.11 minimum for UI-component boundaries. 0.62 clears 3.37:1. */
+  --border: oklch(0.62 0.01 90);
+  --input: oklch(0.62 0.01 90);
   --ring: var(--stamp);
   --chart-1: var(--risk-low-mark);
   --chart-2: var(--risk-medium-mark);
