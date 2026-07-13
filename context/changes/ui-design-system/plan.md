@@ -547,16 +547,16 @@ Rollback is a clean `git revert` of the phase commits; nothing outside `frontend
 
 #### Automated
 
-- [x] 4.1 Lint passes: `cd frontend && pnpm lint`
-- [x] 4.2 Production build succeeds: `cd frontend && pnpm build`
-- [x] 4.3 All 8 E2E specs pass with no spec file modified: `cd frontend && pnpm test:e2e`
-- [x] 4.4 `git diff --stat frontend/e2e/` is empty
+- [x] 4.1 Lint passes: `cd frontend && pnpm lint` — 3e8782d
+- [x] 4.2 Production build succeeds: `cd frontend && pnpm build` — 3e8782d
+- [x] 4.3 All 8 E2E specs pass with no spec file modified: `cd frontend && pnpm test:e2e` — 3e8782d
+- [x] 4.4 `git diff --stat frontend/e2e/` is empty — 3e8782d
 
 #### Manual
 
-- [x] 4.5 Contrast: risk labels clear AA 4.5:1; margin rules and the stamp-violet focus ring clear 3:1
-- [x] 4.6 Colour-blind check: severity readable with colour ignored
-- [x] 4.7 Keyboard: full flow navigable with a visible focus ring throughout
-- [x] 4.8 Reduced motion: rule reveal does not animate; nothing is hidden
-- [x] 4.9 Responsive: all six screens at 375px and 1440px — no horizontal scroll
-- [x] 4.10 Whole-app sweep: all six screens read as one designed product
+- [x] 4.5 Contrast: risk labels clear AA 4.5:1; margin rules and the stamp-violet focus ring clear 3:1 — 3e8782d
+- [x] 4.6 Colour-blind check: severity readable with colour ignored — 3e8782d
+- [x] 4.7 Keyboard: full flow navigable with a visible focus ring throughout — 3e8782d
+- [x] 4.8 Reduced motion: rule reveal does not animate; nothing is hidden — 3e8782d
+- [x] 4.9 Responsive: all six screens at 375px and 1440px — no horizontal scroll — 3e8782d
+- [x] 4.10 Whole-app sweep: all six screens read as one designed product — 3e8782d
