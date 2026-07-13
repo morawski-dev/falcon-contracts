@@ -12,9 +12,17 @@ export type RiskType =
   | "OTHER";
 
 export const RISK_LEVEL_BADGE_CLASS: Record<RiskLevel, string> = {
-  HIGH: "bg-destructive/10 text-destructive dark:bg-destructive/20",
-  MEDIUM: "bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300",
-  LOW: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300",
+  HIGH: "bg-risk-high-mark/10 text-risk-high-ink",
+  MEDIUM: "bg-risk-medium-mark/10 text-risk-medium-ink",
+  LOW: "bg-risk-low-mark/10 text-risk-low-ink",
+};
+
+/** The margin rule's ink (full-chroma `-mark` tier) — kept separate from the
+ * badge/text `-ink` tier above so the two are never mixed up by accident. */
+export const RISK_LEVEL_MARK_CLASS: Record<RiskLevel, string> = {
+  HIGH: "bg-risk-high-mark",
+  MEDIUM: "bg-risk-medium-mark",
+  LOW: "bg-risk-low-mark",
 };
 
 export const RISK_LEVEL_LABEL: Record<RiskLevel, string> = {
