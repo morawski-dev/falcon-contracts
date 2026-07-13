@@ -171,30 +171,30 @@ The report stops ending in nothing: after the last clause, the user is handed th
 
 #### Automated
 
-- [x] 1.1 Lint passes: `cd frontend && pnpm lint`
-- [x] 1.2 Type check + build passes: `cd frontend && pnpm build`
-- [x] 1.3 Full E2E suite passes, including the extended header spec
-- [x] 1.4 No strict-mode violations: existing `name: "Falcon"` locators still resolve to one element
+- [x] 1.1 Lint passes: `cd frontend && pnpm lint` — 61cf9ea
+- [x] 1.2 Type check + build passes: `cd frontend && pnpm build` — 61cf9ea
+- [x] 1.3 Full E2E suite passes, including the extended header spec — 61cf9ea
+- [x] 1.4 No strict-mode violations: existing `name: "Falcon"` locators still resolve to one element — 61cf9ea
 
 #### Manual
 
-- [x] 1.5 `Moje analizy` visible in the header and navigates to the dashboard
-- [x] 1.6 Header does not read as a nav menu; `Nowa analiza` remains the primary action
-- [x] 1.7 `Moje analizy` is keyboard-reachable with a visible focus ring
-- [x] 1.8 Header still absent from `/login` and `/register`
+- [x] 1.5 `Moje analizy` visible in the header and navigates to the dashboard — 61cf9ea
+- [x] 1.6 Header does not read as a nav menu; `Nowa analiza` remains the primary action — 61cf9ea
+- [x] 1.7 `Moje analizy` is keyboard-reachable with a visible focus ring — 61cf9ea
+- [x] 1.8 Header still absent from `/login` and `/register` — 61cf9ea
 
 ### Phase 2: Close the report
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `cd frontend && pnpm lint`
-- [ ] 2.2 Type check + build passes: `cd frontend && pnpm build`
-- [ ] 2.3 Full E2E suite passes, including the new `closing-action.spec.ts`
-- [ ] 2.4 The new spec fails if the closing link is removed
+- [x] 2.1 Lint passes: `cd frontend && pnpm lint`
+- [x] 2.2 Type check + build passes: `cd frontend && pnpm build`
+- [x] 2.3 Full E2E suite passes, including the new `closing-action.spec.ts`
+- [x] 2.4 The new spec fails if the closing link is removed
 
 #### Manual
 
-- [ ] 2.5 After the post-creation redirect, the end of the report offers a self-explanatory way back
-- [ ] 2.6 Closing link absent from the loading skeleton and the not-found state
-- [ ] 2.7 Closing link still renders last on a report with `Pozostałe uwagi`
-- [ ] 2.8 Closing link is the last focusable element and shows a focus ring
+- [x] 2.5 After the post-creation redirect, the end of the report offers a self-explanatory way back
+- [x] 2.6 Closing link absent from the loading skeleton and the not-found state
+- [x] 2.7 Closing link still renders last on a report with `Pozostałe uwagi`
+- [x] 2.8 Closing link is the last focusable element and shows a focus ring

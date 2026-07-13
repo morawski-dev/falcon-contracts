@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -294,6 +295,15 @@ export default function AnalysisResultPage() {
             </Card>
           </>
         )}
+
+        <div className="flex justify-center border-t border-border pt-6">
+          <Link
+            href="/dashboard"
+            className="rounded text-sm font-medium text-stamp underline-offset-4 outline-none hover:underline focus-visible:ring-3 focus-visible:ring-ring/70"
+          >
+            Wróć do moich analiz
+          </Link>
+        </div>
       </div>
     </div>
   );
