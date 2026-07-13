@@ -64,7 +64,7 @@ export default function LoginPage() {
                 autoComplete="username"
               />
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="mb-4 flex flex-col gap-2">
               <Label htmlFor="password">Hasło</Label>
               <Input
                 id="password"
