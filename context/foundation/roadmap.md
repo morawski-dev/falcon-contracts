@@ -37,6 +37,7 @@ Falcon turns a pasted contract into a per-clause risk breakdown: an LLM splits t
 | F-02  | ci-build-and-test        | (foundation) build + tests run automatically on every push      | —             | test-determinism guardrail                      | done |
 | S-05  | app-navigation-header    | return to their dashboard from any authenticated screen         | S-01, S-03    | — (navigation gap; supports US-01, FR-009)      | done |
 | S-06  | ui-design-system         | read the risk report as a marked-up contract, in one coherent visual identity | S-01, S-02, S-03, S-04, S-05 | — (quality/trust gap; serves US-01, FR-004, FR-006, NFR a11y) | done |
+| S-07  | analysis-closing-action  | finish reading a report and be shown the way back to their analyses | S-05, S-06    | — (affordance gap; serves US-01, FR-009)        | done     |
 
 ## Streams
 
@@ -47,7 +48,7 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 | A      | Core value chain     | `F-01` → `S-01` → `S-02`       | The north-star path: auth gate → prove the domain rule → turn the report into a working checklist. |
 | B      | History & retention  | `S-03` / `S-04`                | Both branch from `S-01` (join Stream A at `S-01`); the Secondary signal + user-driven deletion. |
 | C      | Verification         | `F-02`                         | Standalone enabler; automates S-01's deterministic e2e test and guards S-02–S-04. Built alongside Stream B. |
-| D      | Navigation & shell   | `S-05`                         | Joins after Streams A and B land — the screens must exist before the shell that connects them. Closes the one-directional navigation graph the first four slices left behind. |
+| D      | Navigation & shell   | `S-05` → `S-07`                | Joins after Streams A and B land — the screens must exist before the shell that connects them. `S-05` made the way back *possible* (a persistent header); `S-07` makes it *findable* at the moment the user actually needs it. |
 | E      | Identity & craft     | `S-06`                         | Runs last by construction: a design system is only coherent across screens that all exist. Converts a feature-complete MVP into one that looks like a product a user would trust with a contract. |
 
 ## Baseline
@@ -177,6 +178,24 @@ Foundations below assume these are present and do NOT re-scaffold them. The them
   The real failure mode is scope: this slice can quietly become "rebuild the frontend." It must not add screens, states, or features. The other is timidity — swapping the palette while leaving the card stack intact would be a repaint, not the outcome. Spend the boldness in exactly one place (the margin redline) and keep everything around it quiet.
 - **Status:** done
 
+### S-07: Finish the report and be shown the way back
+
+- **Outcome:** a user who has read to the end of an analysis (`/analyses/[id]`) is offered an explicit, labelled way onward — a closing action at the foot of the report that returns them to their analyses on the dashboard, rather than leaving the clause column ending in nothing. The same explicitness is applied to the app header, so the route back reads as *"moje analizy"* and not as *"a logo that happens to be clickable"*. Frontend-only: no new endpoint, no schema change, no change to the owner-scoping invariant.
+- **Change ID:** analysis-closing-action
+- **PRD refs:** none direct — an affordance gap found in use, not an unbuilt requirement. It serves the movement assumption behind US-01 (paste → read the result → carry on) and FR-009 (a history that exists but is not *findable from where the user is standing* does not deliver its outcome).
+- **Prerequisites:** S-05 (the persistent header and the `(app)` route group exist and are the thing being made legible), S-06 (the visual system the closing action must be expressed in) — both `done`, so this is immediately ready for `/10x-plan`.
+- **Parallel with:** —
+- **Blockers:** —
+- **Unknowns:** —
+- **Risk:** **Read the diagnosis before planning — the naive reading of this slice is wrong.** The way back is *not* missing. `S-05` shipped a sticky header (`frontend/src/components/app-header.tsx`) whose "Falcon" wordmark already links to `/dashboard` and never scrolls out of view. So the failure is not a missing link, and the fix is **not** a second link to the dashboard bolted next to the first one — that would add clutter and leave the original problem intact.
+
+  The actual failure is **affordance**, in two places. First, a wordmark reads as branding; users do not scan a logo for "back to my analyses", they scan for a *label that names the destination*. Second, the report is a long single column (`frontend/src/app/(app)/analyses/[id]/page.tsx`) that simply stops after the last clause — at the exact moment the user has finished the task and is looking for "what now", the page offers nothing, and the only exit is a upward eye-movement to a logo. Right after creating an analysis this is at its worst, because the user arrived by a redirect and has no mental model of where they are in the app.
+
+  So the slice's job is to make the existing route back *legible*: a closing action where the reading ends, and a header link that says what it does. Keep it minimal — resist breadcrumbs, a sidebar, a nav menu, or a "back" that abuses browser history (`router.back()` would send the post-creation user to the *form*, not the dashboard — a real trap here, since the redirect means there is no meaningful history entry). Prefer a plain `next/link` to `/dashboard`, styled inside S-06's system rather than against it.
+
+  E2E constraint (same as S-06): `CLAUDE.md` mandates accessibility-first locators, so the existing suite (`frontend/e2e/`) asserts on accessible names. Adding a *second* element whose accessible name matches an existing one (e.g. two things reachable as `Falcon`, or two links named the same) will make a `getByRole` locator strict-mode-ambiguous and break passing specs. Name the new action distinctly, and add its own spec asserting the end-of-report route back — a green suite is the slice's verification.
+- **Status:** done
+
 ## Backlog Handoff
 
 | Roadmap ID | Change ID                | Suggested issue title                                                    | Ready for `/10x-plan` | Notes |
@@ -189,6 +208,7 @@ Foundations below assume these are present and do NOT re-scaffold them. The them
 | F-02       | ci-build-and-test        | CI: build both apps and run tests (incl. the deterministic e2e) on push  | no                    | Build alongside S-02 per the delivery order |
 | S-05       | app-navigation-header    | Let users return to the dashboard from any authenticated screen          | yes                   | Run `/10x-plan app-navigation-header` — prerequisites (S-01, S-03) are done |
 | S-06       | ui-design-system         | Give Falcon one coherent visual identity; render the report as a marked-up contract | yes       | Run `/10x-plan ui-design-system` — all prerequisites done. Design direction is locked in the slice; plan against it, don't re-open it. |
+| S-07       | analysis-closing-action  | Close the loop at the end of an analysis: an explicit way back to my analyses | yes                   | Run `/10x-plan analysis-closing-action` — prerequisites (S-05, S-06) are done. The link back already exists; the slice is about affordance, not a new route — read the Risk note before planning. |
 
 ## Open Roadmap Questions
 
@@ -224,3 +244,4 @@ None. The PRD closed with zero open questions and a clean shape cross-check, and
 - **S-04: a user can delete one of their saved analyses — the MVP's user-driven retention/privacy mechanism (analyses persist until the owner removes them; no automatic expiry).** — Archived 2026-07-10 → `context/archive/2026-07-10-delete-analysis/`. Lesson: —.
 - **S-05: from any authenticated screen — the new-analysis form (`/analyses/new`) and the analysis result (`/analyses/[id]`) — a logged-in user can navigate back to their dashboard via a **persistent app header**: the "Falcon" wordmark links to `/dashboard`, and logout is consolidated into that header. The header is present on every authenticated screen and absent from login/register. Purely client-side navigation — no new endpoint, no schema change, no change to the owner-scoping invariant.** — Archived 2026-07-12 → `context/archive/2026-07-12-app-navigation-header/`. Lesson: —.
 - **S-06: a user meets one coherent, deliberate visual identity on every screen they touch — login, register, dashboard, new-analysis, analysis result — instead of the untouched scaffold theme. The centrepiece is the **analysis result**: it stops being a stack of generic cards and becomes what it actually is, *a contract someone marked up*. Each clause sits in a document column with a **margin redline** — a rule in the left gutter whose ink and weight encode severity, next to the clause reference and the risk level spelled out in words. Risk stops being three hardcoded Tailwind swatches in a TypeScript map and becomes a **first-class semantic token** in the theme. No backend change, no schema change, no new endpoint, no change to the owner-scoping invariant.** — Archived 2026-07-13 → `context/archive/2026-07-13-ui-design-system/`. Lesson: —.
+- **S-07: a user who has read to the end of an analysis (`/analyses/[id]`) is offered an explicit, labelled way onward — a closing action at the foot of the report that returns them to their analyses on the dashboard, rather than leaving the clause column ending in nothing. The same explicitness is applied to the app header, so the route back reads as *"moje analizy"* and not as *"a logo that happens to be clickable"*. Frontend-only: no new endpoint, no schema change, no change to the owner-scoping invariant.** — Archived 2026-07-13 → `context/archive/2026-07-13-analysis-closing-action/`. Lesson: —.
