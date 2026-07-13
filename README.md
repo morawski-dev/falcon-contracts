@@ -128,4 +128,4 @@ context/    the 10x workflow contracts — foundation/ (prd, roadmap, tech-stack
 
 ## License
 
-TBD
+Proprietary software. All rights reserved.
