@@ -1,10 +1,10 @@
 ---
 change_id: ui-design-system
 title: Coherent UI design system — the "Redline / Kancelaria" identity
-status: impl_reviewed
+status: archived
 created: 2026-07-13
 updated: 2026-07-13
-archived_at: null
+archived_at: 2026-07-13T11:36:22Z
 ---
 
 ## Notes
