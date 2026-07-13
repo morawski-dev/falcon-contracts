@@ -493,37 +493,37 @@ Rollback is a clean `git revert` of the phase commits; nothing outside `frontend
 
 #### Automated
 
-- [x] 1.1 Lint passes: `cd frontend && pnpm lint`
-- [x] 1.2 Production build succeeds: `cd frontend && pnpm build`
-- [x] 1.3 All 8 E2E specs pass with no spec file modified: `cd frontend && pnpm test:e2e`
-- [x] 1.4 `git diff --stat frontend/e2e/` is empty
-- [x] 1.5 No `dark:` utility survives: `grep -rn "dark:" frontend/src/` returns nothing
-- [x] 1.6 Dark mode is not reachable: `prefers-color-scheme` appears zero times in the built CSS
+- [x] 1.1 Lint passes: `cd frontend && pnpm lint` — 974a5e5
+- [x] 1.2 Production build succeeds: `cd frontend && pnpm build` — 974a5e5
+- [x] 1.3 All 8 E2E specs pass with no spec file modified: `cd frontend && pnpm test:e2e` — 974a5e5
+- [x] 1.4 `git diff --stat frontend/e2e/` is empty — 974a5e5
+- [x] 1.5 No `dark:` utility survives: `grep -rn "dark:" frontend/src/` returns nothing — 974a5e5
+- [x] 1.6 Dark mode is not reachable: `prefers-color-scheme` appears zero times in the built CSS — 974a5e5
 
 #### Manual
 
-- [ ] 1.7 Polish diacritics render correctly in all three families — no fallback glyphs
-- [ ] 1.8 With the OS set to dark mode, the app still renders as light paper
-- [ ] 1.9 Every screen is visibly re-inked with no layout breakage
-- [ ] 1.10 The Usuń button and a HIGH-risk clause are visibly different colours
-- [ ] 1.11 Risk-level label text clears AA contrast against paper
+- [x] 1.7 Polish diacritics render correctly in all three families — no fallback glyphs — 974a5e5
+- [x] 1.8 With the OS set to dark mode, the app still renders as light paper — 974a5e5
+- [x] 1.9 Every screen is visibly re-inked with no layout breakage — 974a5e5
+- [x] 1.10 The Usuń button and a HIGH-risk clause are visibly different colours — 974a5e5
+- [x] 1.11 Risk-level label text clears AA contrast against paper — 974a5e5
 
 ### Phase 2: The margin redline
 
 #### Automated
 
-- [ ] 2.1 Lint passes: `cd frontend && pnpm lint`
-- [ ] 2.2 Production build succeeds: `cd frontend && pnpm build`
-- [ ] 2.3 All 8 E2E specs pass with no spec file modified: `cd frontend && pnpm test:e2e`
-- [ ] 2.4 `git diff --stat frontend/e2e/` is empty
-- [ ] 2.5 `analysis-result.spec.ts` and `clause-decision.spec.ts` pass specifically
+- [x] 2.1 Lint passes: `cd frontend && pnpm lint`
+- [x] 2.2 Production build succeeds: `cd frontend && pnpm build`
+- [x] 2.3 All 8 E2E specs pass with no spec file modified: `cd frontend && pnpm test:e2e`
+- [x] 2.4 `git diff --stat frontend/e2e/` is empty
+- [x] 2.5 `analysis-result.spec.ts` and `clause-decision.spec.ts` pass specifically
 
 #### Manual
 
-- [ ] 2.6 The result reads as a marked-up contract, not a feed of cards
-- [ ] 2.7 Severity is legible at a glance, and still legible with colour ignored
-- [ ] 2.8 The disclaimer is unmissable
-- [ ] 2.9 Decision buttons still visibly reflect their pressed state
+- [x] 2.6 The result reads as a marked-up contract, not a feed of cards
+- [x] 2.7 Severity is legible at a glance, and still legible with colour ignored
+- [x] 2.8 The disclaimer is unmissable
+- [x] 2.9 Decision buttons still visibly reflect their pressed state
 
 ### Phase 3: The surrounding screens
 

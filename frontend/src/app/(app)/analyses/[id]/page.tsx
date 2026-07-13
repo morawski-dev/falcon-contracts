@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardAction, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,7 +29,14 @@ import {
   type NegotiationPoint,
 } from "@/lib/analyses";
 import { ApiError } from "@/lib/api";
-import { RISK_LEVEL_BADGE_CLASS, RISK_LEVEL_LABEL, RISK_TYPE_LABEL } from "@/lib/risk";
+import {
+  RISK_LEVEL_BADGE_CLASS,
+  RISK_LEVEL_LABEL,
+  RISK_LEVEL_RULE_CLASS,
+  RISK_LEVEL_TEXT_CLASS,
+  RISK_TYPE_LABEL,
+} from "@/lib/risk";
+import { cn } from "@/lib/utils";
 
 const DECISION_OPTIONS: ClauseDecision[] = ["ACCEPTED", "TO_NEGOTIATE", "REJECTED"];
 
@@ -122,10 +129,18 @@ export default function AnalysisResultPage() {
   if (loading) {
     return (
       <div className="flex flex-1 justify-center p-6">
-        <div className="flex w-full max-w-2xl flex-col gap-4">
-          <Skeleton className="h-24 w-full" />
-          <Skeleton className="h-40 w-full" />
-          <Skeleton className="h-40 w-full" />
+        <div className="flex w-full max-w-2xl flex-col gap-6">
+          <Skeleton className="h-9 w-2/3" />
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="grid grid-cols-[3.25rem_1fr] gap-x-4 border-b border-border py-6">
+              <Skeleton className="h-full w-0.5 justify-self-center" />
+              <div className="flex flex-col gap-3">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -158,7 +173,7 @@ export default function AnalysisResultPage() {
 
   return (
     <div className="flex flex-1 justify-center p-6">
-      <div className="flex w-full max-w-2xl flex-col gap-4">
+      <div className="flex w-full max-w-2xl flex-col gap-6">
         <Alert>
           <AlertTitle>To nie jest porada prawna</AlertTitle>
           <AlertDescription>
@@ -167,48 +182,56 @@ export default function AnalysisResultPage() {
           </AlertDescription>
         </Alert>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{analysis.title}</CardTitle>
-            <CardAction>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button type="button" variant="destructive" size="sm">
-                    Usuń
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Usunąć analizę?</AlertDialogTitle>
-                    <AlertDialogDescription>Tej operacji nie można cofnąć.</AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Anuluj</AlertDialogCancel>
-                    <AlertDialogAction variant="destructive" onClick={handleDeleteAnalysis}>
-                      Usuń
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </CardAction>
-          </CardHeader>
-          {deleteError && (
-            <CardContent>
-              <p className="text-xs text-destructive">{deleteError}</p>
-            </CardContent>
-          )}
-        </Card>
+        <div className="flex items-start justify-between gap-4 border-b border-border pb-4">
+          <h1 className="font-display text-2xl font-medium text-balance text-foreground">
+            {analysis.title}
+          </h1>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button type="button" variant="destructive" size="sm">
+                Usuń
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Usunąć analizę?</AlertDialogTitle>
+                <AlertDialogDescription>Tej operacji nie można cofnąć.</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                <AlertDialogAction variant="destructive" onClick={handleDeleteAnalysis}>
+                  Usuń
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+        {deleteError && <p className="text-xs text-destructive">{deleteError}</p>}
 
         {analysis.clauses.map((clause, index) => (
-          <Card key={clause.id}>
-            <CardContent className="flex flex-col gap-3" data-testid={`clause-${clause.id}`}>
-              <div className="flex flex-wrap items-center gap-2">
-                <Badge className={RISK_LEVEL_BADGE_CLASS[clause.riskLevel]}>
-                  {RISK_LEVEL_LABEL[clause.riskLevel]}
-                </Badge>
-                <Badge variant="outline">{RISK_TYPE_LABEL[clause.riskType]}</Badge>
-              </div>
-              <p className="text-sm text-foreground">{clause.text}</p>
+          <div
+            key={clause.id}
+            data-testid={`clause-${clause.id}`}
+            className="grid grid-cols-[3.25rem_1fr] gap-x-4 border-b border-border py-6 last:border-b-0"
+          >
+            <div className="flex flex-col items-center gap-2 text-center">
+              <span className="font-mono text-xs text-stamp">§{index + 1}</span>
+              <div className={cn("min-h-10 flex-1 rounded-full", RISK_LEVEL_RULE_CLASS[clause.riskLevel])} />
+              <span
+                className={cn(
+                  "font-mono text-[0.625rem] leading-tight tracking-wide uppercase",
+                  RISK_LEVEL_TEXT_CLASS[clause.riskLevel]
+                )}
+              >
+                {RISK_LEVEL_LABEL[clause.riskLevel]}
+              </span>
+            </div>
+
+            <div className="flex flex-col gap-3 pb-1">
+              <span className="font-mono text-xs text-muted-foreground">
+                {RISK_TYPE_LABEL[clause.riskType]}
+              </span>
+              <p className="text-[0.9375rem] leading-relaxed text-foreground">{clause.text}</p>
               <p className="text-sm text-muted-foreground">{clause.rationale}</p>
 
               <div
@@ -237,13 +260,15 @@ export default function AnalysisResultPage() {
               )}
 
               {(pointsByClauseId.get(clause.id) ?? []).map((point) => (
-                <div key={point.id} className="rounded-lg border border-border bg-muted/50 p-3">
-                  <p className="text-xs font-medium text-muted-foreground">Punkt do negocjacji</p>
+                <div key={point.id} className="rounded-r-sm border-l border-border bg-muted/50 p-3">
+                  <p className="font-mono text-[0.6875rem] tracking-wide text-muted-foreground uppercase">
+                    Punkt do negocjacji
+                  </p>
                   <p className="text-sm text-foreground">{point.recommendation}</p>
                 </div>
               ))}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         ))}
 
         {unlinkedPoints.length > 0 && (
@@ -255,7 +280,7 @@ export default function AnalysisResultPage() {
               </CardHeader>
               <CardContent className="flex flex-col gap-3">
                 {unlinkedPoints.map((point) => (
-                  <div key={point.id} className="rounded-lg border border-border bg-muted/50 p-3">
+                  <div key={point.id} className="rounded-r-sm border-l border-border bg-muted/50 p-3">
                     <Badge className={RISK_LEVEL_BADGE_CLASS[point.priority]}>
                       {RISK_LEVEL_LABEL[point.priority]}
                     </Badge>
