@@ -21,7 +21,7 @@ export function AppHeader() {
       <div className="mx-auto flex h-full w-full max-w-2xl items-center justify-between px-6">
         <Link
           href="/dashboard"
-          className="rounded font-display text-lg text-stamp outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="rounded font-display text-lg text-stamp outline-none focus-visible:ring-3 focus-visible:ring-ring/70"
         >
           Falcon
         </Link>

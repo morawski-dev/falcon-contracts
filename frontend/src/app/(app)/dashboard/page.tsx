@@ -90,7 +90,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between gap-4">
                   <Link
                     href={`/analyses/${analysis.id}`}
-                    className="flex flex-1 flex-col gap-1 rounded outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                    className="flex flex-1 flex-col gap-1 rounded outline-none focus-visible:ring-3 focus-visible:ring-ring/70"
                   >
                     <span className="text-[0.9375rem] font-medium text-foreground">{analysis.title}</span>
                     <span className="font-mono text-xs text-muted-foreground">{formatDate(analysis.createdAt)}</span>

@@ -529,34 +529,34 @@ Rollback is a clean `git revert` of the phase commits; nothing outside `frontend
 
 #### Automated
 
-- [x] 3.1 Lint passes: `cd frontend && pnpm lint`
-- [x] 3.2 Production build succeeds: `cd frontend && pnpm build`
-- [x] 3.3 All 8 E2E specs pass with no spec file modified: `cd frontend && pnpm test:e2e`
-- [x] 3.4 `git diff --stat frontend/e2e/` is empty
+- [x] 3.1 Lint passes: `cd frontend && pnpm lint` — 6860588
+- [x] 3.2 Production build succeeds: `cd frontend && pnpm build` — 6860588
+- [x] 3.3 All 8 E2E specs pass with no spec file modified: `cd frontend && pnpm test:e2e` — 6860588
+- [x] 3.4 `git diff --stat frontend/e2e/` is empty — 6860588
 
 #### Manual
 
-- [x] 3.5 All six screens read as one system
-- [x] 3.6 The auth screen is a credible first impression
-- [x] 3.7 The surrounding screens stay quiet; the redline is still the memorable thing
-- [x] 3.8 Full flow runs end to end by hand without a visual break
-- [x] 3.9 The browser tab shows Falcon's mark, not the Next.js logo
-- [x] 3.10 The stamp-violet reads as ink, not as generic brand colour
+- [x] 3.5 All six screens read as one system — 6860588
+- [x] 3.6 The auth screen is a credible first impression — 6860588
+- [x] 3.7 The surrounding screens stay quiet; the redline is still the memorable thing — 6860588
+- [x] 3.8 Full flow runs end to end by hand without a visual break — 6860588
+- [x] 3.9 The browser tab shows Falcon's mark, not the Next.js logo — 6860588
+- [x] 3.10 The stamp-violet reads as ink, not as generic brand colour — 6860588
 
 ### Phase 4: Quality floor & the manual sweep
 
 #### Automated
 
-- [ ] 4.1 Lint passes: `cd frontend && pnpm lint`
-- [ ] 4.2 Production build succeeds: `cd frontend && pnpm build`
-- [ ] 4.3 All 8 E2E specs pass with no spec file modified: `cd frontend && pnpm test:e2e`
-- [ ] 4.4 `git diff --stat frontend/e2e/` is empty
+- [x] 4.1 Lint passes: `cd frontend && pnpm lint`
+- [x] 4.2 Production build succeeds: `cd frontend && pnpm build`
+- [x] 4.3 All 8 E2E specs pass with no spec file modified: `cd frontend && pnpm test:e2e`
+- [x] 4.4 `git diff --stat frontend/e2e/` is empty
 
 #### Manual
 
-- [ ] 4.5 Contrast: risk labels clear AA 4.5:1; margin rules and the stamp-violet focus ring clear 3:1
-- [ ] 4.6 Colour-blind check: severity readable with colour ignored
-- [ ] 4.7 Keyboard: full flow navigable with a visible focus ring throughout
-- [ ] 4.8 Reduced motion: rule reveal does not animate; nothing is hidden
-- [ ] 4.9 Responsive: all six screens at 375px and 1440px — no horizontal scroll
-- [ ] 4.10 Whole-app sweep: all six screens read as one designed product
+- [x] 4.5 Contrast: risk labels clear AA 4.5:1; margin rules and the stamp-violet focus ring clear 3:1
+- [x] 4.6 Colour-blind check: severity readable with colour ignored
+- [x] 4.7 Keyboard: full flow navigable with a visible focus ring throughout
+- [x] 4.8 Reduced motion: rule reveal does not animate; nothing is hidden
+- [x] 4.9 Responsive: all six screens at 375px and 1440px — no horizontal scroll
+- [x] 4.10 Whole-app sweep: all six screens read as one designed product

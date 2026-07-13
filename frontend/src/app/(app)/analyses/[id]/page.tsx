@@ -216,7 +216,10 @@ export default function AnalysisResultPage() {
           >
             <div className="flex flex-col items-center gap-2 text-center">
               <span className="font-mono text-xs text-stamp">§{index + 1}</span>
-              <div className={cn("min-h-10 flex-1 rounded-full", RISK_LEVEL_RULE_CLASS[clause.riskLevel])} />
+              <div
+                className={cn("rule-draw min-h-10 flex-1 rounded-full", RISK_LEVEL_RULE_CLASS[clause.riskLevel])}
+                style={{ animationDelay: `${index * 80}ms` }}
+              />
               <span
                 className={cn(
                   "font-mono text-[0.625rem] leading-tight tracking-wide uppercase",

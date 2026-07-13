@@ -116,7 +116,7 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply border-border outline-ring/70;
   }
   body {
     @apply bg-background text-foreground;
@@ -134,5 +134,28 @@
   }
   100% {
     transform: translateX(250%);
+  }
+}
+
+/* The one earned motion moment: as a saved analysis first renders, each clause's margin
+   rule draws in top-to-bottom, as if the mark were being made. Decorative only — the
+   clause text is present and readable from the first frame regardless. */
+@keyframes rule-draw {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+.rule-draw {
+  transform-origin: top;
+  animation: rule-draw 0.4s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rule-draw {
+    animation: none;
   }
 }
