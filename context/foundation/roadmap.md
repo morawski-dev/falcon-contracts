@@ -3,7 +3,7 @@ project: Falcon
 version: 1
 status: draft
 created: 2026-07-04
-updated: 2026-07-12
+updated: 2026-07-13
 prd_version: 1
 main_goal: market-feedback
 top_blocker: capacity
@@ -36,6 +36,7 @@ Falcon turns a pasted contract into a per-clause risk breakdown: an LLM splits t
 | S-04  | delete-analysis          | delete one of their saved analyses                              | S-01          | FR-010                                          | done |
 | F-02  | ci-build-and-test        | (foundation) build + tests run automatically on every push      | —             | test-determinism guardrail                      | done |
 | S-05  | app-navigation-header    | return to their dashboard from any authenticated screen         | S-01, S-03    | — (navigation gap; supports US-01, FR-009)      | done |
+| S-06  | ui-design-system         | read the risk report as a marked-up contract, in one coherent visual identity | S-01, S-02, S-03, S-04, S-05 | — (quality/trust gap; serves US-01, FR-004, FR-006, NFR a11y) | done |
 
 ## Streams
 
@@ -47,6 +48,7 @@ Navigation aid — groups items that share a Prerequisites chain. Canonical orde
 | B      | History & retention  | `S-03` / `S-04`                | Both branch from `S-01` (join Stream A at `S-01`); the Secondary signal + user-driven deletion. |
 | C      | Verification         | `F-02`                         | Standalone enabler; automates S-01's deterministic e2e test and guards S-02–S-04. Built alongside Stream B. |
 | D      | Navigation & shell   | `S-05`                         | Joins after Streams A and B land — the screens must exist before the shell that connects them. Closes the one-directional navigation graph the first four slices left behind. |
+| E      | Identity & craft     | `S-06`                         | Runs last by construction: a design system is only coherent across screens that all exist. Converts a feature-complete MVP into one that looks like a product a user would trust with a contract. |
 
 ## Baseline
 
@@ -152,6 +154,29 @@ Foundations below assume these are present and do NOT re-scaffold them. The them
 - **Risk:** Thin and frontend-only. Today there is no authenticated shell — only the root `app/layout.tsx` — so the header cannot simply go there or it would leak onto `(auth)/login` and `(auth)/register`; the slice must introduce an authenticated route-group layout (e.g. `(app)/layout.tsx`) covering `dashboard` + `analyses/*` without regressing the existing per-screen layouts. The dashboard's current "Falcon" + logout card becomes redundant and should shed that chrome rather than grow a second logout. Keep the header minimal (wordmark → dashboard, logout); resist a full nav menu, breadcrumbs, or a sidebar (YAGNI). Do not touch the backend.
 - **Status:** done
 
+### S-06: Read the report as a marked-up contract
+
+- **Outcome:** a user meets one coherent, deliberate visual identity on every screen they touch — login, register, dashboard, new-analysis, analysis result — instead of the untouched scaffold theme. The centrepiece is the **analysis result**: it stops being a stack of generic cards and becomes what it actually is, *a contract someone marked up*. Each clause sits in a document column with a **margin redline** — a rule in the left gutter whose ink and weight encode severity, next to the clause reference and the risk level spelled out in words. Risk stops being three hardcoded Tailwind swatches in a TypeScript map and becomes a **first-class semantic token** in the theme. No backend change, no schema change, no new endpoint, no change to the owner-scoping invariant.
+- **Change ID:** ui-design-system
+- **PRD refs:** none direct — a quality/trust gap, not an unbuilt requirement. It serves US-01 (the result must be *readable* to be actionable), FR-004 / FR-006 (risk level and rationale are the product's meaning — they deserve the strongest visual treatment, not a stock badge), and the accessibility/NFR floor. The "not legal advice" disclaimer (NFR) must remain unmissable under the new styling, not decoratively softened.
+- **Prerequisites:** S-01, S-02, S-03, S-04, S-05 — all `done`. A design system is only coherent across screens that all exist; sequencing this before the screens would mean designing against imagined content and restyling every slice as it landed.
+- **Parallel with:** —
+- **Blockers:** —
+- **Design direction (locked 2026-07-13, via `frontend-design`):** *Redline / Kancelaria* — Falcon as the marked-up contract itself.
+  - **Palette:** paper `#F7F6F2`, ink `#14161C`, stamp-violet `#4C3FA6` (the violet of a Polish official stamp — the accent, used sparingly). Risk inks are desaturated, as if bled into paper: moss `#5C6B4A` (niskie), ochre `#A9762B` (średnie), oxblood `#8E2C25` (wysokie). Deliberately *not* a saturated traffic light.
+  - **Type:** Fraunces for display (wordmark and page titles **only** — restraint is the point), IBM Plex Sans for body/UI, IBM Plex Mono for clause references and risk-type labels. Legal citation is tabular by nature; the mono is structural, not decorative.
+  - **Signature:** the margin redline. Severity is encoded **redundantly** — rule weight *and* ink *and* the level spelled out in words — never by color alone.
+  - **Structure:** clause numbering (`§1`, `§2` …) is earned, not decoration: contract clauses genuinely *are* an ordered sequence, and the reference is how a user points at one when they call the other side.
+- **Unknowns:**
+  - Do Fraunces and IBM Plex Sans/Mono ship a `latin-ext` subset covering Polish diacritics (ą ę ł ń ó ś ź ż) via `next/font/google`? — Owner: user. Block: no (verified during planning; IBM Plex is known-strong here, and if Fraunces falls short the display role swaps to a Plex Serif or Bricolage Grotesque without disturbing the rest of the system).
+  - Do the risk inks clear WCAG AA contrast against paper at body size? — Owner: user. Block: no (tune lightness within the hue; redundant text/weight encoding means a failure degrades legibility, not correctness).
+- **Risk:** **This is a cross-cutting slice, and that is a deliberate exception — read the justification.** The roadmap forbids slicing by technical layer, and at a glance "restyle the app" looks like exactly that. It isn't: the outcome is end-to-end and user-visible on every screen, and it removes no layer from any feature. It is a whole-product quality change that is only *possible* now that all five feature slices exist. Sequenced last for that reason.
+
+  The load-bearing constraint is the **E2E suite** (`frontend/e2e/`, 8 specs). Because `CLAUDE.md` mandates accessibility-first locators, every assertion is `getByRole` / `getByLabel` / `getByText` — so a restyle is survivable *provided the accessible name surface is preserved*. Concretely, the redesign must keep: the risk level as literal on-screen text (`Wysokie` / `Średnie` / `Niskie` — do **not** abbreviate to `WYS.` in the margin, which is also the WCAG requirement); the `Punkt do negocjacji` label; the clause `data-testid="clause-{id}"` hooks; the decision controls as `button`s carrying `aria-pressed` inside a `role="group"` whose accessible name contains the risk-type label; and the `Falcon` wordmark as a link. Redesigning *through* these constraints rather than around them is the job — a green E2E run is the slice's own verification that no meaning was lost in the restyle.
+
+  The real failure mode is scope: this slice can quietly become "rebuild the frontend." It must not add screens, states, or features. The other is timidity — swapping the palette while leaving the card stack intact would be a repaint, not the outcome. Spend the boldness in exactly one place (the margin redline) and keep everything around it quiet.
+- **Status:** done
+
 ## Backlog Handoff
 
 | Roadmap ID | Change ID                | Suggested issue title                                                    | Ready for `/10x-plan` | Notes |
@@ -163,6 +188,7 @@ Foundations below assume these are present and do NOT re-scaffold them. The them
 | S-04       | delete-analysis          | Let users delete a saved analysis                                        | no                    | After S-01 |
 | F-02       | ci-build-and-test        | CI: build both apps and run tests (incl. the deterministic e2e) on push  | no                    | Build alongside S-02 per the delivery order |
 | S-05       | app-navigation-header    | Let users return to the dashboard from any authenticated screen          | yes                   | Run `/10x-plan app-navigation-header` — prerequisites (S-01, S-03) are done |
+| S-06       | ui-design-system         | Give Falcon one coherent visual identity; render the report as a marked-up contract | yes       | Run `/10x-plan ui-design-system` — all prerequisites done. Design direction is locked in the slice; plan against it, don't re-open it. |
 
 ## Open Roadmap Questions
 
@@ -197,3 +223,4 @@ None. The PRD closed with zero open questions and a clean shape cross-check, and
 - **S-02: on a saved analysis, a user can set each clause's decision status (accepted / to-negotiate / rejected) and have it persist — turning the read-only breakdown into a working negotiation checklist, the user's decision surface.** — Archived 2026-07-09 → `context/archive/2026-07-09-clause-decision-status/`. Lesson: —.
 - **S-04: a user can delete one of their saved analyses — the MVP's user-driven retention/privacy mechanism (analyses persist until the owner removes them; no automatic expiry).** — Archived 2026-07-10 → `context/archive/2026-07-10-delete-analysis/`. Lesson: —.
 - **S-05: from any authenticated screen — the new-analysis form (`/analyses/new`) and the analysis result (`/analyses/[id]`) — a logged-in user can navigate back to their dashboard via a **persistent app header**: the "Falcon" wordmark links to `/dashboard`, and logout is consolidated into that header. The header is present on every authenticated screen and absent from login/register. Purely client-side navigation — no new endpoint, no schema change, no change to the owner-scoping invariant.** — Archived 2026-07-12 → `context/archive/2026-07-12-app-navigation-header/`. Lesson: —.
+- **S-06: a user meets one coherent, deliberate visual identity on every screen they touch — login, register, dashboard, new-analysis, analysis result — instead of the untouched scaffold theme. The centrepiece is the **analysis result**: it stops being a stack of generic cards and becomes what it actually is, *a contract someone marked up*. Each clause sits in a document column with a **margin redline** — a rule in the left gutter whose ink and weight encode severity, next to the clause reference and the risk level spelled out in words. Risk stops being three hardcoded Tailwind swatches in a TypeScript map and becomes a **first-class semantic token** in the theme. No backend change, no schema change, no new endpoint, no change to the owner-scoping invariant.** — Archived 2026-07-13 → `context/archive/2026-07-13-ui-design-system/`. Lesson: —.
