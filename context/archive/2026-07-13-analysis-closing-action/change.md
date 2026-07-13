@@ -1,10 +1,10 @@
 ---
 change_id: analysis-closing-action
 title: Analysis closing action
-status: impl_reviewed
+status: archived
 created: 2026-07-13
 updated: 2026-07-13
-archived_at: null
+archived_at: 2026-07-13T13:33:10Z
 ---
 
 ## Notes
