@@ -187,14 +187,14 @@ The report stops ending in nothing: after the last clause, the user is handed th
 
 #### Automated
 
-- [x] 2.1 Lint passes: `cd frontend && pnpm lint`
-- [x] 2.2 Type check + build passes: `cd frontend && pnpm build`
-- [x] 2.3 Full E2E suite passes, including the new `closing-action.spec.ts`
-- [x] 2.4 The new spec fails if the closing link is removed
+- [x] 2.1 Lint passes: `cd frontend && pnpm lint` — ff26d2a
+- [x] 2.2 Type check + build passes: `cd frontend && pnpm build` — ff26d2a
+- [x] 2.3 Full E2E suite passes, including the new `closing-action.spec.ts` — ff26d2a
+- [x] 2.4 The new spec fails if the closing link is removed — ff26d2a
 
 #### Manual
 
-- [x] 2.5 After the post-creation redirect, the end of the report offers a self-explanatory way back
-- [x] 2.6 Closing link absent from the loading skeleton and the not-found state
-- [x] 2.7 Closing link still renders last on a report with `Pozostałe uwagi`
-- [x] 2.8 Closing link is the last focusable element and shows a focus ring
+- [x] 2.5 After the post-creation redirect, the end of the report offers a self-explanatory way back — ff26d2a
+- [x] 2.6 Closing link absent from the loading skeleton and the not-found state — ff26d2a
+- [x] 2.7 Closing link still renders last on a report with `Pozostałe uwagi` — ff26d2a
+- [x] 2.8 Closing link is the last focusable element and shows a focus ring — ff26d2a
