@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -74,61 +73,60 @@ export default function DashboardPage() {
         )}
 
         {!analysesLoading && analyses !== null && analyses.length === 0 && (
-          <Card>
-            <CardContent className="flex flex-col items-center gap-4 p-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                Nie masz jeszcze żadnych analiz. Wklej treść umowy, aby rozpocząć pierwszą.
-              </p>
-            </CardContent>
-          </Card>
+          <div className="flex flex-col items-center gap-4 border border-dashed border-border py-16 text-center">
+            <p className="max-w-xs text-sm text-muted-foreground">
+              Nie masz jeszcze żadnej analizy.
+            </p>
+            <Button asChild size="sm">
+              <Link href="/analyses/new">Wklej pierwszą umowę</Link>
+            </Button>
+          </div>
         )}
 
         {!analysesLoading && analyses !== null && analyses.length > 0 && (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col">
             {analyses.map((analysis) => (
-              <Card key={analysis.id} className="transition-colors hover:bg-muted/50">
-                <CardContent className="flex flex-col gap-2 p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <Link
-                      href={`/analyses/${analysis.id}`}
-                      className="flex flex-1 flex-col gap-1 rounded outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-                    >
-                      <span className="text-sm font-medium text-foreground">{analysis.title}</span>
-                      <span className="text-xs text-muted-foreground">{formatDate(analysis.createdAt)}</span>
-                    </Link>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline">{ANALYSIS_STATUS_LABEL[analysis.status]}</Badge>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            aria-label={`Usuń analizę: ${analysis.title}`}
-                          >
+              <div key={analysis.id} className="flex flex-col gap-2 border-b border-border py-4 last:border-b-0">
+                <div className="flex items-center justify-between gap-4">
+                  <Link
+                    href={`/analyses/${analysis.id}`}
+                    className="flex flex-1 flex-col gap-1 rounded outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                  >
+                    <span className="text-[0.9375rem] font-medium text-foreground">{analysis.title}</span>
+                    <span className="font-mono text-xs text-muted-foreground">{formatDate(analysis.createdAt)}</span>
+                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline">{ANALYSIS_STATUS_LABEL[analysis.status]}</Badge>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          aria-label={`Usuń analizę: ${analysis.title}`}
+                        >
+                          Usuń
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Usunąć analizę?</AlertDialogTitle>
+                          <AlertDialogDescription>Tej operacji nie można cofnąć.</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                          <AlertDialogAction variant="destructive" onClick={() => handleDelete(analysis.id)}>
                             Usuń
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Usunąć analizę?</AlertDialogTitle>
-                            <AlertDialogDescription>Tej operacji nie można cofnąć.</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Anuluj</AlertDialogCancel>
-                            <AlertDialogAction variant="destructive" onClick={() => handleDelete(analysis.id)}>
-                              Usuń
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
-                  {deleteErrors[analysis.id] && (
-                    <p className="text-xs text-destructive">{deleteErrors[analysis.id]}</p>
-                  )}
-                </CardContent>
-              </Card>
+                </div>
+                {deleteErrors[analysis.id] && (
+                  <p className="text-xs text-destructive">{deleteErrors[analysis.id]}</p>
+                )}
+              </div>
             ))}
           </div>
         )}

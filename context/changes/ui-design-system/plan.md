@@ -512,36 +512,36 @@ Rollback is a clean `git revert` of the phase commits; nothing outside `frontend
 
 #### Automated
 
-- [x] 2.1 Lint passes: `cd frontend && pnpm lint`
-- [x] 2.2 Production build succeeds: `cd frontend && pnpm build`
-- [x] 2.3 All 8 E2E specs pass with no spec file modified: `cd frontend && pnpm test:e2e`
-- [x] 2.4 `git diff --stat frontend/e2e/` is empty
-- [x] 2.5 `analysis-result.spec.ts` and `clause-decision.spec.ts` pass specifically
+- [x] 2.1 Lint passes: `cd frontend && pnpm lint` — 50df723
+- [x] 2.2 Production build succeeds: `cd frontend && pnpm build` — 50df723
+- [x] 2.3 All 8 E2E specs pass with no spec file modified: `cd frontend && pnpm test:e2e` — 50df723
+- [x] 2.4 `git diff --stat frontend/e2e/` is empty — 50df723
+- [x] 2.5 `analysis-result.spec.ts` and `clause-decision.spec.ts` pass specifically — 50df723
 
 #### Manual
 
-- [x] 2.6 The result reads as a marked-up contract, not a feed of cards
-- [x] 2.7 Severity is legible at a glance, and still legible with colour ignored
-- [x] 2.8 The disclaimer is unmissable
-- [x] 2.9 Decision buttons still visibly reflect their pressed state
+- [x] 2.6 The result reads as a marked-up contract, not a feed of cards — 50df723
+- [x] 2.7 Severity is legible at a glance, and still legible with colour ignored — 50df723
+- [x] 2.8 The disclaimer is unmissable — 50df723
+- [x] 2.9 Decision buttons still visibly reflect their pressed state — 50df723
 
 ### Phase 3: The surrounding screens
 
 #### Automated
 
-- [ ] 3.1 Lint passes: `cd frontend && pnpm lint`
-- [ ] 3.2 Production build succeeds: `cd frontend && pnpm build`
-- [ ] 3.3 All 8 E2E specs pass with no spec file modified: `cd frontend && pnpm test:e2e`
-- [ ] 3.4 `git diff --stat frontend/e2e/` is empty
+- [x] 3.1 Lint passes: `cd frontend && pnpm lint`
+- [x] 3.2 Production build succeeds: `cd frontend && pnpm build`
+- [x] 3.3 All 8 E2E specs pass with no spec file modified: `cd frontend && pnpm test:e2e`
+- [x] 3.4 `git diff --stat frontend/e2e/` is empty
 
 #### Manual
 
-- [ ] 3.5 All six screens read as one system
-- [ ] 3.6 The auth screen is a credible first impression
-- [ ] 3.7 The surrounding screens stay quiet; the redline is still the memorable thing
-- [ ] 3.8 Full flow runs end to end by hand without a visual break
-- [ ] 3.9 The browser tab shows Falcon's mark, not the Next.js logo
-- [ ] 3.10 The stamp-violet reads as ink, not as generic brand colour
+- [x] 3.5 All six screens read as one system
+- [x] 3.6 The auth screen is a credible first impression
+- [x] 3.7 The surrounding screens stay quiet; the redline is still the memorable thing
+- [x] 3.8 Full flow runs end to end by hand without a visual break
+- [x] 3.9 The browser tab shows Falcon's mark, not the Next.js logo
+- [x] 3.10 The stamp-violet reads as ink, not as generic brand colour
 
 ### Phase 4: Quality floor & the manual sweep
 

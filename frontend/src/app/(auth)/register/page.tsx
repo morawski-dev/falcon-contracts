@@ -40,7 +40,13 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center p-6">
+    <div className="flex flex-1 flex-col items-center justify-center gap-8 p-6">
+      <div className="flex flex-col items-center gap-2 text-center">
+        <span className="font-display text-3xl text-stamp">Falcon</span>
+        <p className="max-w-xs text-sm text-muted-foreground">
+          Wklej umowę, a Falcon wskaże ryzykowne klauzule i zaproponuje punkty do negocjacji.
+        </p>
+      </div>
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Zarejestruj się</CardTitle>

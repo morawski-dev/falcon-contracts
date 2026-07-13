@@ -17,11 +17,11 @@ export function AppHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-10 h-[var(--header-height)] border-b border-border bg-background">
+    <header className="sticky top-0 z-10 h-[var(--header-height)] border-b border-ink/10 bg-background">
       <div className="mx-auto flex h-full w-full max-w-2xl items-center justify-between px-6">
         <Link
           href="/dashboard"
-          className="rounded font-semibold outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="rounded font-display text-lg text-stamp outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           Falcon
         </Link>
