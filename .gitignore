@@ -36,3 +36,5 @@ build/
 ### Local env (Docker Compose) ###
 .env
 !.env.example
+/context/deployment
+/infra

@@ -1,0 +1,35 @@
+# Falcon reverse proxy — single origin, automatic HTTPS.
+#
+# Caddy fetches and renews a Let's Encrypt certificate for $DOMAIN on its own
+# (needs ports 80 + 443 open, which the security group allows). Serving frontend
+# and backend from the same host+scheme is what makes the Spring Security session
+# cookie first-party — no CORS, no SameSite=None.
+#
+# $DOMAIN and $ACME_EMAIL are substituted from /opt/falcon/.env at container start.
+
+{
+	# ACME account contact. Harmless if empty.
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	# The actuator surface (health, info, …) must never be publicly reachable.
+	# The in-container healthcheck hits it directly on localhost:8080, so it needs
+	# no route here. Anything that asks for it over the internet gets 404.
+	handle /actuator/* {
+		respond 404
+	}
+
+	# API — Spring Boot. Caddy adds X-Forwarded-Proto=https by default, which
+	# server.forward-headers-strategy=framework consumes so the cookie is Secure.
+	handle /api/* {
+		reverse_proxy backend:8080
+	}
+
+	# Everything else — the Next.js standalone server.
+	handle {
+		reverse_proxy frontend:3000
+	}
+}

@@ -12,13 +12,13 @@ tech_stack:
 
 ## Recommendation
 
-**Deploy the whole stack — Spring Boot backend, Next.js frontend, and PostgreSQL 18 — as three containers in a single `docker-compose` on one Amazon EC2 `t4g.medium` (2 vCPU / 4 GB, ARM/Graviton) in eu-central-1 (Frankfurt).**
+**Deploy the whole stack — Spring Boot backend, Next.js frontend, and PostgreSQL 18 — as three containers in a single `docker-compose` on one Amazon EC2 `t4g.medium` (2 vCPU / 4 GB, ARM/Graviton) in eu-west-1 (Ireland).**
 
-This is a **conscious override of the agent-friendly scoring**, chosen from the working thread, not a scored winner. On the five criteria a raw VM scores *worse* than the previous leader (ECS Fargate): it fails "managed/serverless" outright — you own OS patching, the Docker daemon, and disk — and it only partially satisfies "stable deploy API," since a deploy is `ssh + docker compose pull && up -d`, not a deterministic one-command rollout. It wins on the axes the developer weighted for this MVP: **cost** (~$31/mo all-in, the cheapest persistent-process option that keeps the database at $0), **dev/prod parity** (the exact `compose.yaml` that runs locally runs in production — one file, one mental model), and **AWS familiarity** (same cloud as the `aws-ecs` production target, but the simplest compute primitive on it).
+This is a **conscious override of the agent-friendly scoring**, chosen from the working thread, not a scored winner. On the five criteria a raw VM scores *worse* than the previous leader (ECS Fargate): it fails "managed/serverless" outright — you own OS patching, the Docker daemon, and disk — and it only partially satisfies "stable deploy API," since a deploy is `ssh + docker compose pull && up -d`, not a deterministic one-command rollout. It wins on the axes the developer weighted for this MVP: **cost** (~$34/mo all-in, the cheapest persistent-process option that keeps the database at $0), **dev/prod parity** (the exact `compose.yaml` that runs locally runs in production — one file, one mental model), and **AWS familiarity** (same cloud as the `aws-ecs` production target, but the simplest compute primitive on it).
 
 **Three things are consciously accepted and must not be forgotten:** (1) **one box = one point of failure** — no redundancy, no health-based cross-host recovery; (2) **you are the DBA and the sysadmin** — Postgres backups and OS/Docker patching are unbuilt TODOs until you build them; (3) **`t4g` is ARM** — every image must be `arm64` or the deploy fails (or silently runs under qemu emulation with a large perf hit). **ECS Fargate remains the documented graduation path**: the same containers move there when the single-box operational risk outweighs the cost saving.
 
-> **Sizing rationale (why 4 GB, not 2 GB):** three co-resident processes — JVM backend (~1–1.5 GB: heap + metaspace + off-heap), Next.js `next start` (~0.4–0.7 GB), PostgreSQL 18 (~0.25–0.5 GB), plus OS + Docker daemon (~0.4–0.6 GB) — sum to ~2.5–3.3 GB. `t3/t4g.small` (2 GB) would OOM-kill under any real load. The bottleneck is **RAM (via the JVM), not CPU** — the workload is I/O-bound waiting on OpenRouter — so a 1:2 vCPU:GB "general purpose" burstable instance is the right shape. (Pricing + sizing checked 2026-07-04.)
+> **Sizing rationale (why 4 GB, not 2 GB):** three co-resident processes — JVM backend (~1–1.5 GB: heap + metaspace + off-heap), Next.js `next start` (~0.4–0.7 GB), PostgreSQL 18 (~0.25–0.5 GB), plus OS + Docker daemon (~0.4–0.6 GB) — sum to ~2.5–3.3 GB. `t3/t4g.small` (2 GB) would OOM-kill under any real load. The bottleneck is **RAM (via the JVM), not CPU** — the workload is I/O-bound waiting on OpenRouter — so a 1:2 vCPU:GB "general purpose" burstable instance is the right shape. (Sizing checked 2026-07-04; pricing re-derived from the AWS Pricing API for eu-west-1 on 2026-07-10.)
 
 ## Platform Comparison
 
@@ -45,7 +45,7 @@ The tech stack is the decisive filter. Falcon's backend is a **long-running JVM 
 
 #### 1. AWS EC2 + Docker Compose (Recommended — developer's conscious choice)
 
-Cheapest persistent-process option (~$31/mo, DB free), exact local/prod parity (one `compose.yaml`), same cloud as the production target, and single-origin serving that eliminates the cross-surface cookie/CORS tax. Accepted price: no backups/HA/zero-downtime/patching out of the box — all owned by you.
+Cheapest persistent-process option (~$34/mo 24/7, or ~$17–19/mo on a Mon–Fri window; DB free), exact local/prod parity (one `compose.yaml`), same cloud as the production target, and single-origin serving that eliminates the cross-surface cookie/CORS tax. Accepted price: no backups/HA/zero-downtime/patching out of the box — all owned by you.
 
 #### 2. AWS ECS + Fargate (Runner-up — the production graduation path)
 
@@ -67,7 +67,7 @@ The `aws-ecs` target itself. Same image, but managed compute + circuit-breaker r
 
 ### Pre-Mortem — How This Could Fail
 
-The developer picked EC2 + docker-compose because it was cheap (~$31/mo) and byte-for-byte identical to local dev. Six months later it was a slow-motion disaster. Nobody owned OS maintenance on a solo project, so the box was never patched — and the single EBS volume holding Postgres was never snapshotted, because "it's just running." When the instance failed a status check during a routine AZ event and had to be stopped and started, a corrupted volume took the only copy of every user's contract data with it; there were no backups to restore. Deploys, each a manual SSH + `docker compose up`, caused a 25-second JVM-warmup outage every time, so deploys became rare and fixes shipped slowly. `OPENROUTER_API_KEY` sat in plaintext `.env` on a box several old SSH keys still reached. When usage bumped, 4 GB of RAM meant the JVM, Node, and Postgres fought for memory and the OOM-killer began reaping Postgres mid-query. The stack was cheap, but every guarantee ECS+RDS would have provided for free — backups, patching, health-based restart, zero-downtime rollout — was an unbuilt TODO. Root cause: mistaking "same as local dev" for a production strategy.
+The developer picked EC2 + docker-compose because it was cheap (~$34/mo) and byte-for-byte identical to local dev. Six months later it was a slow-motion disaster. Nobody owned OS maintenance on a solo project, so the box was never patched — and the single EBS volume holding Postgres was never snapshotted, because "it's just running." When the instance failed a status check during a routine AZ event and had to be stopped and started, a corrupted volume took the only copy of every user's contract data with it; there were no backups to restore. Deploys, each a manual SSH + `docker compose up`, caused a 25-second JVM-warmup outage every time, so deploys became rare and fixes shipped slowly. `OPENROUTER_API_KEY` sat in plaintext `.env` on a box several old SSH keys still reached. When usage bumped, 4 GB of RAM meant the JVM, Node, and Postgres fought for memory and the OOM-killer began reaping Postgres mid-query. The stack was cheap, but every guarantee ECS+RDS would have provided for free — backups, patching, health-based restart, zero-downtime rollout — was an unbuilt TODO. Root cause: mistaking "same as local dev" for a production strategy.
 
 ### Unknown Unknowns
 
@@ -87,19 +87,24 @@ The developer picked EC2 + docker-compose because it was cheap (~$31/mo) and byt
 
 **Cost-conscious, secure single-box networking:** Security group allows **443/80 from anywhere and *no* port 22** (use SSM Session Manager for shell access). **TLS terminates in a Caddy/nginx container** in the same compose (automatic Let's Encrypt) — this is the cheap alternative to an ALB (which would add ~$18/mo); an ALB is only worth it if you later need managed health checks or multiple targets. **Postgres is never published to the host** — it listens only on the internal compose network, reachable by the backend container alone, so the sensitive data layer has no public surface.
 
-## Cost (eu-central-1 Frankfurt, on-demand, 24/7)
+## Cost (eu-west-1 Ireland, on-demand, 24/7)
 
 | Line item | Detail | ~$/mo |
 |---|---|---|
-| Compute | `t4g.medium` (2 vCPU / 4 GB), ~$0.0384/h × 730 | ~$28 |
-| Storage | 30 GB gp3 EBS root+data | ~$2.7 |
-| Postgres backups | EBS snapshots (retained), ~$0.05/GB-mo | ~$1–3 |
+| Compute | `t4g.medium` (2 vCPU / 4 GB), $0.0368/h × 730 | ~$27 |
+| Storage | 30 GB gp3 EBS root+data, $0.088/GB-mo | ~$2.6 |
+| Public IPv4 | 1 address × $0.005/h — billed **in-use and idle alike** | ~$3.7 |
+| Postgres backups | EBS snapshots (retained), $0.05/GB-mo | ~$1–3 |
 | Database | self-hosted in compose | $0 |
 | Egress | < 100 GB/mo → within free allowance | ~$0 |
-| **Total** | | **~$31–34/mo (~125–140 zł)** |
+| **Total** | | **~$34–36/mo (~138–146 zł)** |
 
-- **If images are built *on the box*** (`docker compose build`), `next build` can spike >1 GB and contend with running services on 4 GB → step up to **`t4g.large` (8 GB), ~$52/mo**, or add 2–4 GB swap. **Preferred instead: build `arm64` images in GitHub Actions, push to ECR/GHCR, and only `pull` on the box** — then 4 GB is comfortable and prod/CI images are identical.
-- **Cost levers**: `stop` (not `terminate`) the instance when idle → pay only EBS (~$3/mo); a 1-year Savings Plan cuts compute ~40% for 24/7 running. **A scheduled 08:00–20:00 window (stop overnight) roughly halves compute — see "Scheduled Uptime" below for the real math and its two gotchas.**
+> Every rate above was read from the AWS Pricing API (`pricing get-products`, `regionCode=eu-west-1`) on 2026-07-10. eu-west-1 is ~4% cheaper than eu-central-1 on compute ($0.0368 vs $0.0384/h) and ~8% on gp3 ($0.088 vs $0.0952/GB-mo) — a real but immaterial ~$0.6/mo at this scale. The region was chosen by the developer; the saving was not the reason.
+>
+> **The `Public IPv4` row did not exist before and is not optional.** Since Feb 2024 AWS charges $0.005/h for *every* public IPv4 address — `InUseAddress` and `IdleAddress` are the same price. A publicly reachable box pays it whether or not you allocate an Elastic IP. Earlier revisions of this table omitted it and therefore understated the 24/7 baseline by ~$3.7/mo.
+
+- **If images are built *on the box*** (`docker compose build`), `next build` can spike >1 GB and contend with running services on 4 GB → step up to **`t4g.large` (8 GB), ~$54/mo** ($0.0736/h × 730), or add 2–4 GB swap. **Preferred instead: build `arm64` images in GitHub Actions, push to ECR/GHCR, and only `pull` on the box** — then 4 GB is comfortable and prod/CI images are identical.
+- **Cost levers**: `stop` (not `terminate`) the instance when idle → compute drops to $0, but you keep paying EBS (~$2.6/mo) and the public IPv4 (~$3.7/mo) — a stopped box still costs ~$6.3/mo. A 1-year Savings Plan cuts compute ~40% for 24/7 running. **A scheduled 08:00–20:00 window (stop overnight) cuts compute by ~65% — see "Scheduled Uptime" below for the real math and its one genuine gotcha.**
 
 ## Scheduled Uptime — Run Only 08:00–20:00, Stop Overnight
 
@@ -119,22 +124,24 @@ Two cron schedules that call the EC2 API directly — **no Lambda, no extra code
 
 *Alternatives considered:* **SSM Quick Setup Scheduler** (managed, console-driven, same effect — fine if you prefer a UI over a schedule definition) and **Instance Scheduler on AWS** (tag-based, DynamoDB-defined, multi-instance/multi-account — but it runs a polling Lambda ~$10/mo and is built for fleets, so it's overkill for one box). For a single VM, EventBridge Scheduler's two universal-target schedules are the least-moving-parts option.
 
-### Cost impact (eu-central-1, 12-hour window)
+### Cost impact (eu-west-1, 12-hour window)
 
 | Line item | 24/7 (current) | 08:00–20:00, 7 days | 08:00–20:00, Mon–Fri |
 |---|---:|---:|---:|
-| Compute `t4g.medium` (~$0.0384/h) | ~$28 | ~$14 (≈364 h) | ~$10 (≈260 h) |
-| EBS 30 GB gp3 — **billed while stopped too** | ~$2.7 | ~$2.7 | ~$2.7 |
+| Compute `t4g.medium` ($0.0368/h) | ~$27 (730 h) | ~$13 (≈364 h) | ~$10 (≈260 h) |
+| EBS 30 GB gp3 — **billed while stopped too** | ~$2.6 | ~$2.6 | ~$2.6 |
 | EBS snapshots | ~$1–3 | ~$1–3 | ~$1–3 |
-| Elastic IP — **billed 24/7, even when stopped** (see gotcha 1) | ~$0 (in-use) | ~$3.6 | ~$3.6 |
-| **Total** | **~$31–34** | **~$22–23** | **~$18–19** |
+| Public IPv4 / Elastic IP — **billed 24/7 in every column** | ~$3.7 | ~$3.7 | ~$3.7 |
+| **Total** | **~$34–36** | **~$20–22** | **~$17–19** |
 
-Net saving ≈ **$9–15/mo (~40–65 zł)** — real, but smaller than the naive "halve the compute" figure, because **EBS keeps billing while stopped** and the **Elastic IP charge does not pause**.
+Net saving ≈ **$14/mo (7 days)** or **$17/mo (Mon–Fri, ~69 zł)**. The saving comes **entirely from compute**; every other line is identical across the three columns.
 
-### The two gotchas that eat the saving
+> **Correction to an earlier revision of this table.** It listed the Elastic IP as `~$0 (in-use)` under 24/7 and concluded the EIP charge "eats the saving." That is wrong. AWS prices `EU-PublicIPv4:InUseAddress` and `EU-PublicIPv4:IdleAddress` identically at $0.005/h (verified against the Pricing API, 2026-07-10), so a 24/7 box with an auto-assigned public IP pays the same ~$3.7/mo as a stopped box holding an EIP. The EIP is **cost-neutral between the two scenarios** — it buys a stable DNS target for free, relative to the 24/7 baseline. Scheduling therefore saves *more* than previously stated, not less.
 
-1. **Public IP changes on every restart — you need an Elastic IP for a stable domain.** An auto-assigned public IPv4 is *released* when the instance stops and a *different* one is assigned on start, so your DNS `A` record (and Caddy's Let's Encrypt cert) would point at the wrong box every morning. The fix is an **Elastic IP** — but since Feb 2024 AWS bills **all** public IPv4 at **$0.005/h**, and an EIP allocated to a *stopped* instance is billed as *idle* with **no free tier**, so it costs ~$3.6/mo charged 24/7 whether the box is up or not. Budget for it above. (Skip the EIP only if you access the box by raw, changing IP and have no custom domain — rare for a real deployment.)
-2. **Overnight jobs must move inside the window.** Any `pg_dump` / snapshot cron or `unattended-upgrades` you scheduled for the quiet small hours (02:00–04:00) will **silently never run** once the box is off then. Move backups to e.g. **19:30** (inside the window, before the stop fires) and patching to a daytime slot — otherwise the single-box design's *only* data-safety net stops firing the day you enable the schedule.
+### The gotchas
+
+1. **Public IP changes on every restart — you need an Elastic IP for a stable domain.** An auto-assigned public IPv4 is *released* when the instance stops and a *different* one is assigned on start, so your DNS `A` record (and Caddy's Let's Encrypt cert) would point at the wrong box every morning. The fix is an **Elastic IP**, allocated once and never released. Since Feb 2024 AWS bills **all** public IPv4 at **$0.005/h** — `InUseAddress` and `IdleAddress` at the same rate — so the EIP costs ~$3.7/mo charged 24/7 whether the box is up or not. **This is not an extra cost of scheduling:** the 24/7 alternative pays the identical $0.005/h for its auto-assigned address. Allocate the EIP and stop worrying about it. (Skip it only if you access the box by raw, changing IP and have no custom domain — rare for a real deployment.)
+2. **Overnight jobs must move inside the window.** *(This is the gotcha that actually bites.)* Any `pg_dump` / snapshot cron or `unattended-upgrades` you scheduled for the quiet small hours (02:00–04:00) will **silently never run** once the box is off then. Move backups to e.g. **19:30** (inside the window, before the stop fires) and patching to a daytime slot — otherwise the single-box design's *only* data-safety net stops firing the day you enable the schedule.
 
 Also verify **graceful shutdown**: `stopInstances` triggers an ACPI OS shutdown → Docker sends `SIGTERM` to each container. Give Postgres room to checkpoint cleanly — set `stop_grace_period: 60s` on the Postgres service in `compose.yaml` so a shutdown mid-write can't leave the volume needing crash recovery on the next boot.
 
@@ -154,7 +161,7 @@ Also verify **graceful shutdown**: `stopInstances` triggers an ACPI OS shutdown 
 | Building on the box exhausts 4 GB during `next build`/Maven | Research finding | M | M | Build `arm64` images in GitHub Actions → push → `pull` on the box (box only runs, never builds) |
 | Overnight shutdown = 100% downtime 20:00–08:00 (no off-hours access) | Devil's advocate | H (by design) | M | Confirm no off-hours users / monitors / webhooks before enabling; document the window; widen or disable the schedule if usage patterns change |
 | Cold-start unavailability at window open (~2–4 min JVM+DB warmup) | Research finding | H | L | Start at 07:45 (ahead of 08:00); `restart: unless-stopped`; external ping at ~07:55 to confirm warm |
-| Elastic IP required for stable DNS — billed ~$3.6/mo 24/7 even while stopped | Unknown unknowns | H | L | Budget the EIP; or drop the custom domain and accept a changing IP; do **not** release the EIP (defeats the stable-DNS purpose) |
+| Elastic IP required for stable DNS — billed ~$3.7/mo 24/7 even while stopped | Unknown unknowns | H | L | Budget the EIP, but note it is **cost-neutral vs. the 24/7 baseline** (AWS bills in-use and idle public IPv4 identically); do **not** release it (defeats the stable-DNS purpose) |
 | Overnight backup / patch cron never fires once box is off nightly | Unknown unknowns | M | **H** | Move `pg_dump`/snapshot to ~19:30 (inside window); move patching to a daytime slot; verify the job actually ran |
 | Ungraceful stop mid-write → Postgres crash recovery / corruption | Pre-mortem | L | H | `stop_grace_period: 60s` on Postgres; ensure OS shutdown waits for Docker to drain; snapshot before first enabling the schedule |
 
@@ -162,7 +169,7 @@ Also verify **graceful shutdown**: `stopInstances` triggers an ACPI OS shutdown 
 
 Validated against this project's stack (Java 25, Spring Boot 4.0.7, Maven wrapper, Next.js 16 / Node 24, PostgreSQL 18; `t4g.medium` on ARM confirmed for all three runtimes 2026-07-04). Build `arm64` images; do not copy x86 marketing commands verbatim.
 
-1. **Provision the box.** Launch a `t4g.medium` in eu-central-1 (Amazon Linux 2023 or Ubuntu 24.04 **arm64**), 30 GB gp3. Attach an **IAM instance role** granting SSM (Session Manager), ECR pull, SSM Parameter Store read, and CloudWatch Logs write. Security group: inbound **443/80 only, no 22**.
+1. **Provision the box.** Launch a `t4g.medium` in eu-west-1 (Amazon Linux 2023 or Ubuntu 24.04 **arm64**), 30 GB gp3. Attach an **IAM instance role** granting SSM (Session Manager), ECR pull, SSM Parameter Store read, and CloudWatch Logs write. Security group: inbound **443/80 only, no 22**.
 2. **Install Docker + the compose plugin** and enable **SSM Session Manager** for shell access (then confirm port 22 is closed in the SG).
 3. **Build `arm64` images in CI** (GitHub Actions, per the stack's stated infra order): `docker buildx build --platform linux/arm64` for the backend (multi-stage on `eclipse-temurin:25-jre`, `./mvnw clean package -DskipTests` → `java -jar`) and the frontend (`node:24`, `pnpm build` → `next start`). Push to ECR (or GHCR).
 4. **Write the production `compose.yaml`** (on the box, not committed with secrets): `backend` + `frontend` + `postgres:18` + a `caddy` reverse proxy. Named volume for Postgres data; `healthcheck:` on `/actuator/health`; `restart: unless-stopped`; secrets from `.env` (`chmod 600`) or SSM. Set backend `JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=60`. **Do not publish Postgres to the host** — internal network only. Caddy routes `/` → frontend and `/api` → backend on **one origin** (first-party cookies for Spring Security) and auto-provisions Let's Encrypt TLS.

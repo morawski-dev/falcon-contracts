@@ -18,6 +18,14 @@ RUN corepack enable
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+# NEXT_PUBLIC_* is inlined into the bundle at build time, so the API base URL
+# must be fixed here, not at runtime. Default to the local backend so a bare
+# `docker build` and `docker compose up --build` keep talking cross-origin to
+# :8080. The production build overrides this with an empty string
+# (--build-arg NEXT_PUBLIC_API_BASE_URL=) so api.ts emits relative /api paths
+# and Caddy serves frontend + backend from one origin (first-party cookies).
+ARG NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
 RUN pnpm build
 
 # ---- Runtime stage: the self-contained standalone server ----

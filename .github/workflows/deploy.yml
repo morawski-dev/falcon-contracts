@@ -1,0 +1,140 @@
+name: Deploy to production (EC2)
+
+# Manual promotion only (tech-stack.md:10) — never on push. ci.yml is untouched.
+# Rollback = re-run this with a previous git SHA in `image_tag`.
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Git SHA to build and deploy (defaults to the triggering commit).
+        required: false
+
+permissions:
+  id-token: write   # mint the OIDC token to assume the AWS deploy role
+  contents: read
+
+concurrency:
+  group: falcon-prod-deploy
+  cancel-in-progress: false   # never interrupt an in-flight deploy
+
+jobs:
+  deploy:
+    # Native arm64 runner: buildx emits a genuine linux/arm64 image with no QEMU,
+    # and the backend's in-Dockerfile Maven build runs at native speed. If arm64
+    # runners are unavailable on your plan, switch to `ubuntu-latest` and add a
+    # `docker/setup-qemu-action@v3` step before buildx.
+    runs-on: ubuntu-24.04-arm
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      ECR_REGISTRY: ${{ vars.ECR_REGISTRY }}
+      DOMAIN: ${{ vars.FALCON_DOMAIN }}
+      ACME_EMAIL: ${{ vars.FALCON_ACME_EMAIL }}
+      INSTANCE_ID: ${{ vars.FALCON_INSTANCE_ID }}
+      IMAGE_TAG: ${{ github.event.inputs.image_tag || github.sha }}
+
+    steps:
+      - name: Check out the deployed revision
+        uses: actions/checkout@v4
+        with:
+          # Build exactly the SHA being deployed (matters for rollbacks).
+          ref: ${{ github.event.inputs.image_tag || github.sha }}
+
+      - name: Assume the AWS deploy role (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Log in to ECR
+        run: |
+          aws ecr get-login-password --region "$AWS_REGION" \
+            | docker login --username AWS --password-stdin "$ECR_REGISTRY"
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push backend (arm64)
+        run: |
+          docker buildx build --platform linux/arm64 \
+            -t "$ECR_REGISTRY/falcon-backend:$IMAGE_TAG" \
+            --push ./backend
+
+      - name: Build and push frontend (arm64)
+        run: |
+          # Empty NEXT_PUBLIC_API_BASE_URL -> api.ts emits relative /api paths
+          # so Caddy can serve one origin.
+          docker buildx build --platform linux/arm64 \
+            --build-arg NEXT_PUBLIC_API_BASE_URL= \
+            -t "$ECR_REGISTRY/falcon-frontend:$IMAGE_TAG" \
+            --push ./frontend
+
+      - name: Deploy over SSM
+        run: |
+          set -euo pipefail
+
+          # Ship the committed compose + Caddy config with this deploy, so the box
+          # always runs exactly what's in git at this SHA.
+          COMPOSE_B64=$(base64 -w0 compose.prod.yaml)
+          CADDY_B64=$(base64 -w0 Caddyfile)
+
+          # Remote body is a QUOTED heredoc: nothing expands here on the runner
+          # (so $(aws ecr ...) runs on the box). Values are injected via the
+          # export prelude below; base64 blobs are quote-safe.
+          REMOTE=$(cat <<'SCRIPT'
+          set -euxo pipefail
+          mkdir -p /opt/falcon
+          echo "$COMPOSE_B64" | base64 -d > /opt/falcon/compose.prod.yaml
+          echo "$CADDY_B64"   | base64 -d > /opt/falcon/Caddyfile
+          printf 'ECR_REGISTRY=%s\nIMAGE_TAG=%s\nDOMAIN=%s\nACME_EMAIL=%s\n' \
+            "$ECR_REGISTRY" "$IMAGE_TAG" "$DOMAIN" "$ACME_EMAIL" > /opt/falcon/deploy.env
+          # Render secrets from SSM onto tmpfs, then pull + up the new images.
+          systemctl start falcon-secrets
+          aws ecr get-login-password --region "$AWS_REGION" \
+            | docker login --username AWS --password-stdin "$ECR_REGISTRY"
+          COMPOSE="docker compose --env-file /opt/falcon/deploy.env --env-file /run/falcon/secrets.env -f /opt/falcon/compose.prod.yaml"
+          $COMPOSE pull
+          $COMPOSE up -d
+          SCRIPT
+          )
+          PRELUDE="export COMPOSE_B64='$COMPOSE_B64' CADDY_B64='$CADDY_B64' ECR_REGISTRY='$ECR_REGISTRY' IMAGE_TAG='$IMAGE_TAG' DOMAIN='$DOMAIN' ACME_EMAIL='$ACME_EMAIL' AWS_REGION='$AWS_REGION'"
+          FULL="$PRELUDE"$'\n'"$REMOTE"
+
+          PARAMS=$(jq -n --arg c "$FULL" '{commands: [$c]}')
+          CMD_ID=$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name AWS-RunShellScript \
+            --comment "Falcon deploy $IMAGE_TAG" \
+            --parameters "$PARAMS" \
+            --query Command.CommandId --output text)
+          echo "SSM command: $CMD_ID"
+
+          # Poll to a terminal state, then FAIL the job on any non-Success exit —
+          # this is what makes the deploy deterministic rather than "SSH-and-hope".
+          aws ssm wait command-executed --command-id "$CMD_ID" --instance-id "$INSTANCE_ID" || true
+          STATUS=$(aws ssm get-command-invocation \
+            --command-id "$CMD_ID" --instance-id "$INSTANCE_ID" \
+            --query Status --output text)
+          echo "----- remote stdout -----"
+          aws ssm get-command-invocation --command-id "$CMD_ID" --instance-id "$INSTANCE_ID" \
+            --query StandardOutputContent --output text || true
+          echo "Deploy status: $STATUS"
+          if [ "$STATUS" != "Success" ]; then
+            echo "----- remote stderr -----"
+            aws ssm get-command-invocation --command-id "$CMD_ID" --instance-id "$INSTANCE_ID" \
+              --query StandardErrorContent --output text || true
+            exit 1
+          fi
+
+      - name: Smoke test
+        run: |
+          # Give the JVM a moment to warm, then require a 200 from the public origin.
+          for i in $(seq 1 30); do
+            if curl -fsS -o /dev/null "https://$DOMAIN/"; then
+              echo "Smoke OK: https://$DOMAIN/"
+              exit 0
+            fi
+            echo "waiting for https://$DOMAIN/ ($i)"
+            sleep 10
+          done
+          echo "Smoke test failed"
+          exit 1

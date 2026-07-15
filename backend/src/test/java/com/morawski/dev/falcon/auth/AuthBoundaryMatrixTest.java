@@ -19,6 +19,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,7 +36,6 @@ class AuthBoundaryMatrixTest {
 				"/api/auth/me",
 				"/api/analyses",
 				"/api/analyses/1",
-				"/actuator/health",
 				"/api/__does_not_exist__");
 	}
 
@@ -86,6 +86,18 @@ class AuthBoundaryMatrixTest {
 	void anonymousCsrfEndpointIsReachable() throws Exception {
 		mockMvc.perform(get("/api/auth/csrf"))
 				.andExpect(status().isNoContent());
+	}
+
+	@Test
+	void actuatorHealthIsReachableAnonymously() throws Exception {
+		// Documented public exception to the default-deny matrix: the compose
+		// healthcheck polls /actuator/health without credentials, so a 401 here
+		// would deadlock `depends_on: service_healthy`. Only the health endpoint
+		// is opened (EndpointRequest.to(HealthEndpoint.class)) — no other actuator
+		// endpoint is web-exposed.
+		mockMvc.perform(get("/actuator/health"))
+				.andExpect(status().isOk())
+				.andExpect(content().string(containsString("UP")));
 	}
 
 	@Test

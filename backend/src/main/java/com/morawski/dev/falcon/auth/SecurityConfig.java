@@ -1,5 +1,7 @@
 package com.morawski.dev.falcon.auth;
 
+import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
+import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -37,6 +39,7 @@ public class SecurityConfig {
 				.securityContext(sc -> sc.securityContextRepository(securityContextRepository))
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+						.requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
 						.requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
 						.requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
 						.anyRequest().authenticated())

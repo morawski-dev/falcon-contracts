@@ -1,0 +1,111 @@
+# Production stack for Falcon on the single EC2 box (t4g.medium, arm64).
+#
+# Unlike docker-compose.yaml (local dev, builds from source), this file PULLS
+# pre-built arm64 images from ECR and adds a Caddy reverse proxy so the whole
+# stack answers on ONE origin (Caddy -> / to frontend, /api to backend). That
+# makes JSESSIONID / XSRF-TOKEN first-party and removes the CORS + SameSite=None
+# tax a split-host design would impose.
+#
+# All values below come from /opt/falcon/.env (rendered from SSM at boot onto a
+# tmpfs mount, mode 600) -- never committed. The deploy workflow rewrites
+# IMAGE_TAG in that file, then runs `docker compose -f compose.prod.yaml up -d`.
+#
+#   Required .env keys:
+#     ECR_REGISTRY        e.g. 123456789012.dkr.ecr.eu-west-1.amazonaws.com
+#     IMAGE_TAG           git SHA of the deployed build
+#     DOMAIN              e.g. aws4.cloud   (Caddy TLS + vhost)
+#     ACME_EMAIL          Let's Encrypt contact
+#     POSTGRES_PASSWORD   secret from SSM
+#     OPENROUTER_API_KEY  secret from SSM
+name: falcon-prod
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    # The ONLY service that publishes ports. 80 is needed for the ACME HTTP-01
+    # challenge and the ->443 redirect; 443 serves the app.
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data      # certificates + ACME account (must persist!)
+      - caddy-config:/config
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_started
+    restart: unless-stopped
+
+  frontend:
+    image: ${ECR_REGISTRY}/falcon-frontend:${IMAGE_TAG}
+    # No ports: reachable only by Caddy on the internal network.
+    environment:
+      NODE_ENV: production
+    healthcheck:
+      # busybox wget (present in node:alpine) -- non-zero exit on any error.
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:3000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  backend:
+    image: ${ECR_REGISTRY}/falcon-backend:${IMAGE_TAG}
+    # No ports: reachable only by Caddy on the internal network.
+    environment:
+      # This container cannot drive a Docker daemon -- keep spring-boot-docker-compose off.
+      SPRING_DOCKER_COMPOSE_ENABLED: "false"
+      # B2: datasource comes from the environment (Spring relaxed binding),
+      # pointing at the internal postgres service (never published to the host).
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/falcon
+      SPRING_DATASOURCE_USERNAME: falcon
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      # Cap the heap so the JVM, Node and Postgres coexist in 4 GB without the
+      # OOM-killer reaping Postgres (infrastructure.md risk register).
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=60"
+    healthcheck:
+      # B1: /actuator/health is permitAll, so this returns 200 (not 401) and
+      # depends_on: service_healthy no longer deadlocks the stack.
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8080/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s   # JVM + Liquibase migrations need headroom on cold start
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:18
+    # B7: NO ports -- the sensitive data layer has no public surface.
+    environment:
+      POSTGRES_DB: falcon
+      POSTGRES_USER: falcon
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      # Bind onto the separate 10 GB data EBS volume (mounted at /mnt/falcon-data
+      # by the instance user-data). Postgres 18 keeps data in a version subdir
+      # under /var/lib/postgresql, so mount the parent, not .../data.
+      - /mnt/falcon-data/postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U falcon -d falcon"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    # Give Postgres room to checkpoint cleanly when EventBridge stops the box at
+    # 20:00, so a mid-write shutdown can't leave the volume needing crash recovery.
+    stop_grace_period: 60s
+    restart: unless-stopped
+
+volumes:
+  caddy-data:
+  caddy-config:
