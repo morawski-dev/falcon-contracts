@@ -70,6 +70,13 @@ services:
       # Cap the heap so the JVM, Node and Postgres coexist in 4 GB without the
       # OOM-killer reaping Postgres (infrastructure.md risk register).
       JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=60"
+      # server.forward-headers-strategy=framework makes app-level request.isSecure()
+      # true (so the XSRF-TOKEN cookie is issued Secure), but the servlet container
+      # writes the JSESSIONID Secure flag from its OWN view, which `framework` does
+      # not update -- so JSESSIONID would ship without Secure. This box is only ever
+      # reached via Caddy over HTTPS, so force the session cookie Secure here. Set
+      # in prod only; local dev must keep it off so login works over plain http.
+      SERVER_SERVLET_SESSION_COOKIE_SECURE: "true"
     healthcheck:
       # B1: /actuator/health is permitAll, so this returns 200 (not 401) and
       # depends_on: service_healthy no longer deadlocks the stack.
